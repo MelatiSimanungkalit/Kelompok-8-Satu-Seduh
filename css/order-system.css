@@ -1,0 +1,417 @@
+/* ── SHARED OVERLAY ── */
+.ss-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.9);
+  z-index: 100000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+  backdrop-filter: blur(10px);
+}
+.ss-overlay.open { opacity: 1; pointer-events: all; }
+
+.ss-modal {
+  background: var(--dark1);
+  border: 1px solid var(--border2);
+  width: 100%; max-width: 520px;
+  max-height: 92vh; overflow-y: auto;
+  position: relative;
+  transform: translateY(28px);
+  transition: transform 0.35s ease;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold) var(--dark2);
+}
+.ss-overlay.open .ss-modal { transform: translateY(0); }
+
+.ss-close {
+  position: absolute; top: 1rem; right: 1rem; z-index: 10;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--dark2); border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--muted); transition: all 0.2s;
+}
+.ss-close:hover { border-color: var(--gold); color: var(--gold); }
+
+.ss-hd {
+  padding: 1.4rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  position: sticky; top: 0; background: var(--dark1); z-index: 5;
+}
+.ss-hd h3 { font-family:'Cormorant Garamond',serif; font-size: 1.5rem; }
+.ss-body { padding: 1.5rem; }
+.ss-footer {
+  padding: 1rem 1.5rem 1.5rem;
+  border-top: 1px solid var(--border);
+  background: var(--dark1);
+  position: sticky; bottom: 0;
+}
+
+/* ─────────────────────────────────────────────
+   1. CUSTOMIZE MODAL
+───────────────────────────────────────────── */
+.cust-hero { position: relative; height: 170px; overflow: hidden; flex-shrink: 0; }
+.cust-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cust-hero::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 35%, var(--dark1) 100%);
+}
+.cust-hero-info {
+  position: absolute; bottom: 1rem; left: 1.5rem; z-index: 2;
+}
+.cust-hero-info h3 { font-family:'Cormorant Garamond',serif; font-size: 1.6rem; line-height: 1.1; }
+.cust-hero-info .base-price { color: var(--gold); font-weight: 600; font-size: 0.95rem; }
+
+.cust-sec { margin-bottom: 1.4rem; }
+.cust-sec-label {
+  font-size: 0.68rem; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 0.6rem; display: flex;
+  align-items: center; gap: 0.5rem;
+}
+.cust-sec-label::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+.cust-opts { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.cust-opt {
+  border: 1px solid var(--border); padding: 0.42rem 1rem;
+  font-size: 0.82rem; color: rgba(255,255,255,0.6);
+  cursor: pointer; border-radius: 100px; transition: all 0.2s;
+  background: none; font-family: 'Outfit', sans-serif;
+}
+.cust-opt.sel {
+  border-color: var(--gold); color: var(--gold);
+  background: rgba(212,165,90,0.1);
+}
+
+.addon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+.addon-card {
+  border: 1px solid var(--border); padding: 0.8rem 0.5rem;
+  text-align: center; cursor: pointer; transition: all 0.2s;
+  background: none; font-family: 'Outfit', sans-serif;
+}
+.addon-card strong { display: block; font-size: 0.8rem; color: rgba(255,255,255,0.8); margin-bottom: 0.15rem; }
+.addon-card em { font-size: 0.72rem; color: var(--gold); font-style: normal; }
+.addon-card.sel { border-color: var(--gold); background: rgba(212,165,90,0.08); }
+
+.cust-price-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 0.8rem;
+}
+.cust-price-row span { font-size: 0.82rem; color: var(--muted); }
+.cust-price-val { font-family:'Cormorant Garamond',serif; font-size: 2rem; color: var(--gold); }
+.cust-add-btn {
+  width: 100%; background: var(--gold); color: #0a0703;
+  padding: 1rem; font-weight: 700; font-size: 0.9rem;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  cursor: pointer; border: none; font-family: 'Outfit', sans-serif;
+  transition: background 0.2s; display: flex; align-items: center;
+  justify-content: center; gap: 0.5rem;
+}
+.cust-add-btn:hover { background: var(--gold2); }
+
+
+/* ─────────────────────────────────────────────
+   2. CHECKOUT MODAL
+───────────────────────────────────────────── */
+.co-items { margin-bottom: 1.2rem; }
+.co-item {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 0.65rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem;
+}
+.co-item-name { flex: 1; line-height: 1.4; }
+.co-item-name small { display: block; color: var(--muted); font-size: 0.72rem; margin-top: 0.15rem; }
+.co-item-price { color: var(--gold); font-weight: 600; margin-left: 1rem; flex-shrink: 0; }
+.co-subtotal {
+  display: flex; justify-content: space-between;
+  padding: 0.8rem 0; font-size: 0.85rem; color: var(--muted);
+}
+.co-total {
+  display: flex; justify-content: space-between;
+  padding: 0.8rem 0; font-weight: 700; font-size: 1rem;
+  border-top: 1px solid var(--border2); border-bottom: 1px solid var(--border2); margin-bottom: 1.5rem;
+}
+.co-total span:last-child { color: var(--gold); font-family:'Cormorant Garamond',serif; font-size: 1.3rem; }
+
+.co-sec-label {
+  font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 0.7rem; margin-top: 1.3rem;
+}
+.co-field {
+  display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.8rem;
+}
+.co-field label { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.co-field input, .co-field textarea {
+  background: var(--dark2); border: 1px solid var(--border); color: #fff;
+  padding: 0.8rem 1rem; font-family: 'Outfit', sans-serif; font-size: 0.88rem;
+  transition: border-color 0.2s; width: 100%;
+}
+.co-field input:focus, .co-field textarea:focus { border-color: var(--gold); }
+.co-field input::placeholder, .co-field textarea::placeholder { color: var(--muted); }
+.co-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+
+.pay-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1.2rem; }
+.pay-opt {
+  border: 1px solid var(--border); padding: 1rem;
+  text-align: center; cursor: pointer; transition: all 0.2s; background: none;
+  font-family: 'Outfit', sans-serif;
+}
+.pay-opt:hover { border-color: var(--border2); }
+.pay-opt.sel { border-color: var(--gold); background: rgba(212,165,90,0.08); }
+.pay-opt .pay-icon { font-size: 1.8rem; margin-bottom: 0.3rem; }
+.pay-opt strong { display: block; font-size: 0.88rem; color: #fff; margin-bottom: 0.1rem; }
+.pay-opt span { font-size: 0.72rem; color: var(--muted); }
+
+.checkout-btn {
+  width: 100%; background: var(--gold); color: #0a0703;
+  padding: 1rem; font-weight: 700; font-size: 0.95rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  cursor: pointer; border: none; font-family: 'Outfit', sans-serif;
+  transition: background 0.2s;
+}
+.checkout-btn:hover { background: var(--gold2); }
+.checkout-btn:disabled { background: var(--muted); cursor: not-allowed; }
+
+
+/* ─────────────────────────────────────────────
+   3. PAYMENT / QRIS MODAL
+───────────────────────────────────────────── */
+.payment-modal { max-width: 420px; }
+.pay-status {
+  text-align: center; padding: 2rem 1.5rem 0;
+}
+.pay-status-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  border: 1px solid var(--gold); padding: 0.4rem 1.2rem;
+  font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--gold); border-radius: 100px; margin-bottom: 1.2rem;
+}
+.pay-status-dot {
+  width: 7px; height: 7px; background: var(--gold);
+  border-radius: 50%; animation: pulse 1.5s infinite;
+}
+.pay-status h3 { font-family:'Cormorant Garamond',serif; font-size: 1.8rem; margin-bottom: 0.3rem; }
+.pay-status p { color: var(--muted); font-size: 0.85rem; line-height: 1.6; }
+
+/* QRIS box */
+.qris-box {
+  margin: 1.5rem; padding: 1.5rem; background: #fff;
+  border-radius: 4px; text-align: center;
+}
+.qris-logo {
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  margin-bottom: 0.8rem;
+}
+.qris-logo span {
+  font-weight: 800; font-size: 1rem; color: #e20613;
+  letter-spacing: 0.05em;
+}
+.qris-logo span small { color: #0070ba; }
+.qris-img {
+  width: 200px; height: 200px; margin: 0 auto;
+  background: #f0f0f0; display: flex; align-items: center;
+  justify-content: center; border: 2px dashed #ccc;
+  position: relative; overflow: hidden;
+}
+/* Fake QR pattern */
+.qris-img svg { width: 180px; height: 180px; }
+.qris-box p {
+  font-size: 0.75rem; color: #666; margin-top: 0.8rem;
+  font-family: 'Outfit', sans-serif;
+}
+.qris-amount {
+  font-size: 1.2rem; font-weight: 700; color: #333; margin-bottom: 0.3rem;
+}
+.qris-timer {
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  font-size: 0.82rem; color: var(--muted); margin: 0.8rem 1.5rem;
+}
+.qris-timer strong { color: #f0a500; font-size: 1.1rem; font-family: monospace; }
+
+/* Cash box */
+.cash-box { margin: 1.5rem; }
+.cash-info {
+  background: var(--dark2); border: 1px solid var(--border2);
+  padding: 1.5rem; text-align: center; margin-bottom: 1rem;
+}
+.cash-info .cash-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+.cash-info h4 { font-family:'Cormorant Garamond',serif; font-size: 1.4rem; margin-bottom: 0.3rem; }
+.cash-info p { font-size: 0.85rem; color: var(--muted); }
+.cash-amount {
+  font-family:'Cormorant Garamond',serif; font-size: 2rem;
+  color: var(--gold); text-align: center; padding: 0.5rem 0;
+}
+.cash-note {
+  background: rgba(212,165,90,0.08); border: 1px solid var(--border);
+  padding: 0.8rem 1rem; font-size: 0.8rem; color: var(--muted);
+  line-height: 1.6;
+}
+.pay-order-num {
+  text-align: center; padding: 1rem 1.5rem;
+  font-size: 0.8rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+}
+.pay-order-num strong { color: var(--gold); font-size: 1rem; }
+.pay-done-btn {
+  width: calc(100% - 3rem); margin: 0 1.5rem 1.5rem;
+  background: #2d6a4f; color: #fff;
+  padding: 0.9rem; font-weight: 700; font-size: 0.88rem;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  cursor: pointer; border: none; font-family: 'Outfit', sans-serif;
+  transition: background 0.2s;
+}
+.pay-done-btn:hover { background: #39855f; }
+
+
+/* ─────────────────────────────────────────────
+   4. RESERVASI CONFIRM MODAL
+───────────────────────────────────────────── */
+.res-confirm-modal { max-width: 500px; }
+.res-confirm-status { text-align: center; padding: 2rem 1.5rem 1rem; }
+.res-confirm-icon {
+  width: 72px; height: 72px; border-radius: 50%;
+  border: 2px solid var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1rem; color: var(--gold); font-size: 2rem;
+}
+.res-confirm-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: rgba(212,165,90,0.1); border: 1px solid var(--border2);
+  padding: 0.4rem 1.2rem; font-size: 0.7rem; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--gold); border-radius: 100px;
+  margin-bottom: 0.8rem;
+}
+.res-confirm-badge .dot {
+  width: 6px; height: 6px; background: var(--gold);
+  border-radius: 50%; animation: pulse 1.5s infinite;
+}
+.res-confirm-status h3 { font-family:'Cormorant Garamond',serif; font-size: 1.9rem; margin-bottom: 0.5rem; }
+.res-confirm-status p { color: var(--muted); font-size: 0.85rem; line-height: 1.7; }
+
+.res-detail-box {
+  margin: 0 1.5rem 1rem;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.res-detail-row {
+  display: flex; justify-content: space-between;
+  padding: 0.7rem 1rem; font-size: 0.83rem;
+  border-bottom: 1px solid var(--border);
+}
+.res-detail-row:last-child { border-bottom: none; }
+.res-detail-row span:first-child { color: var(--muted); }
+.res-detail-row span:last-child { color: #fff; font-weight: 500; text-align: right; max-width: 60%; }
+
+.res-note-box {
+  margin: 0 1.5rem 1.5rem;
+  background: rgba(212,165,90,0.05);
+  border: 1px solid var(--border2);
+  padding: 1rem 1.2rem;
+  font-size: 0.8rem; color: var(--muted); line-height: 1.7;
+}
+.res-note-box strong { color: var(--gold); display: block; margin-bottom: 0.3rem; }
+.res-waba-btn {
+  width: calc(100% - 3rem); margin: 0 1.5rem 1rem;
+  background: #25D366; color: #fff;
+  padding: 0.9rem; font-weight: 700; font-size: 0.88rem;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  cursor: pointer; border: none; font-family: 'Outfit', sans-serif;
+  transition: background 0.2s; display: flex; align-items: center;
+  justify-content: center; gap: 0.5rem;
+}
+.res-waba-btn:hover { background: #1ebe5a; }
+.res-close-btn {
+  width: calc(100% - 3rem); margin: 0 1.5rem 1.5rem;
+  background: none; color: var(--muted); border: 1px solid var(--border);
+  padding: 0.8rem; font-size: 0.82rem; cursor: pointer;
+  font-family: 'Outfit', sans-serif; transition: all 0.2s;
+}
+.res-close-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ── CART upgrades ── */
+.c-item-meta { font-size: 0.72rem; color: var(--muted); margin-top: 0.15rem; }
+.cart-checkout-btn {
+  width: 100%; background: var(--gold); color: #0a0703;
+  padding: 1rem; font-weight: 700; font-size: 0.92rem;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  cursor: pointer; border: none; font-family: 'Outfit', sans-serif;
+  transition: background 0.2s;
+}
+.cart-checkout-btn:hover { background: var(--gold2); }
+
+/* ── fnb-add in menu ── */
+.fnb-add, .fnb-order-btn {
+  cursor: pointer !important;
+}
+
+/* ── WAITING BAR (ganti tombol selesai) ── */
+.pay-waiting-bar {
+  margin: 0 1.5rem 1.5rem;
+  background: rgba(212,165,90,0.07);
+  border: 1px solid var(--border2);
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  font-size: 0.88rem;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+}
+.pay-waiting-spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(212,165,90,0.25);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Reservasi Action Buttons ── */
+.res-action-btns {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.res-action-btns .res-waba-btn {
+  flex: 1;
+  margin-bottom: 0;
+}
+.res-print-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  background: transparent;
+  border: 1.5px solid var(--gold);
+  border-radius: 8px;
+  color: var(--gold);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  letter-spacing: 0.03em;
+}
+.res-print-btn:hover {
+  background: var(--gold);
+  color: #1a1209;
+}
+
+/* ── Print styles ── */
+@media print {
+  body > *:not(#buktiPrintArea) { display: none !important; }
+  #buktiPrintArea {
+    display: block !important;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: auto;
+    background: #fff;
+    color: #000;
+    z-index: 99999;
+    padding: 2rem;
+    box-sizing: border-box;
+  }
+}
