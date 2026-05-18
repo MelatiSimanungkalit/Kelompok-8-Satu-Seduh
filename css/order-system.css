@@ -1,3 +1,11 @@
+/* ════════════════════════════════════════════════
+   ORDER SYSTEM — Satu Seduh
+   1. Customize Modal (minuman)
+   2. Checkout Modal
+   3. QRIS / Payment Modal
+   4. Reservasi Confirm Modal
+   ════════════════════════════════════════════════ */
+
 /* ── SHARED OVERLAY ── */
 .ss-overlay {
   position: fixed; inset: 0;

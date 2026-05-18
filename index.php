@@ -1,4 +1,7 @@
 <?php
+// ============================================================
+//  SATU SEDUH — Halaman Utama (PHP)
+// ============================================================
 require_once __DIR__ . '/includes/config.php';
 
 // Ambil data menu dari database

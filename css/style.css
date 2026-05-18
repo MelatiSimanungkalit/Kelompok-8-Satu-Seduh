@@ -1,3 +1,27 @@
+/* ============================================================
+   SATU SEDUH — Main Stylesheet
+   ============================================================
+   Sections:
+   01. CSS Variables & Reset
+   02. Cursor & Scrollbar
+   03. Navbar
+   04. Hero
+   05. Section Commons
+   06. About
+   07. Facilities
+   08. Space & Area
+   09. Food & Beverages (Menu)
+   10. Products
+   11. Reservation
+   12. Review
+   13. Contact
+   14. Footer
+   15. Cart Sidebar
+   16. Toast & Backdrop
+   17. Product Modal
+   18. Responsive
+   ============================================================ */
+
 /* ── 01. CSS VARIABLES & RESET ── */
 :root {
   --gold:   #d4a55a;

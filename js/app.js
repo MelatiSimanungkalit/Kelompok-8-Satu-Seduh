@@ -1,3 +1,7 @@
+/* ============================================================
+   SATU SEDUH — app.js
+   Integrasi frontend ke PHP API (menggantikan alert simulasi)
+   ============================================================ */
 
 /* ── Override submitCheckout: kirim ke API pesanan.php ── */
 window.submitCheckout = async function () {
@@ -8,8 +12,12 @@ window.submitCheckout = async function () {
   const payEl = document.querySelector('.pay-opt.sel');
   const bayar = payEl?.dataset.pay || 'cash';
 
+  // Validasi wajib: hanya nama yang harus ada
   if (!nama) { showToast('Nama pemesan wajib diisi!'); return; }
   if (!orderCart.length) { showToast('Keranjang masih kosong!'); return; }
+
+  // Normalisasi nomor telepon: izinkan 08xxx dan +628xxx dll
+  const telpNorm = telp.replace(/[\s\-().]/g, '');
 
   // Siapkan payload
   const items = orderCart.map(item => ({
@@ -20,12 +28,31 @@ window.submitCheckout = async function () {
     meta:  Array.isArray(item.meta) ? item.meta.join(', ') : (item.meta || ''),
   }));
 
+  // Tentukan base URL agar fetch tidak salah path
+  const baseUrl = (function() {
+    const scripts = document.querySelectorAll('script[src]');
+    for (const s of scripts) {
+      const m = s.src.match(/^(https?:\/\/[^/]+\/[^/]+)\//);
+      if (m) return m[1];
+    }
+    // fallback: ambil dari pathname
+    const parts = location.pathname.split('/');
+    parts.pop(); // hapus file terakhir (index.php)
+    return location.origin + parts.join('/');
+  })();
+
   try {
-    const res  = await fetch('api/pesanan.php', {
+    const res = await fetch(baseUrl + '/api/pesanan.php', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ nama, telepon: telp, meja, catatan: cat, metode_bayar: bayar, items }),
+      body:    JSON.stringify({ nama, telepon: telpNorm, meja, catatan: cat, metode_bayar: bayar, items }),
     });
+
+    if (!res.ok) {
+      showToast('Server error: ' + res.status + '. Coba lagi.');
+      return;
+    }
+
     const data = await res.json();
 
     if (!data.success) {
@@ -33,7 +60,7 @@ window.submitCheckout = async function () {
       return;
     }
 
-    // Tampilkan payment modal
+    // ── Pesanan berhasil ──
     closeOverlay('checkoutOverlay');
     document.getElementById('payOrderNum').textContent = data.nomor_pesanan;
 
@@ -41,23 +68,24 @@ window.submitCheckout = async function () {
       document.getElementById('qrisSection').style.display = '';
       document.getElementById('cashSection').style.display = 'none';
       document.getElementById('qrisAmount').textContent = data.total_fmt;
-      startQrisCountdown();
+      // startQrisTimer ada di order-system.js
+      if (typeof startQrisTimer === 'function') startQrisTimer(600);
     } else {
       document.getElementById('qrisSection').style.display = 'none';
       document.getElementById('cashSection').style.display = '';
       document.getElementById('cashAmount').textContent = data.total_fmt;
-      document.getElementById('cashMeja').textContent = meja ? 'Meja ' + meja : 'Meja -';
+      document.getElementById('cashMeja').textContent = meja ? 'Meja ' + meja : 'Kasir';
     }
     openOverlay('paymentOverlay');
 
-    // Kosongkan keranjang
+    // Kosongkan keranjang — renderOrderCart ada di order-system.js
     orderCart = [];
-    updateCartUI();
-    showToast('Pesanan berhasil dibuat! No: ' + data.nomor_pesanan);
+    if (typeof renderOrderCart === 'function') renderOrderCart();
+    showToast('✓ Pesanan berhasil! No: ' + data.nomor_pesanan);
 
   } catch (err) {
-    console.error(err);
-    showToast('Gagal mengirim pesanan. Pastikan semua data terisi dengan lengkap.');
+    console.error('Checkout error:', err);
+    showToast('Koneksi ke server gagal. Pastikan server PHP berjalan.');
   }
 };
 
@@ -85,8 +113,15 @@ window.submitReservasi = async function (e) {
     return;
   }
 
+  // Tentukan base URL
+  const baseUrlRes = (function() {
+    const parts = location.pathname.split('/');
+    parts.pop();
+    return location.origin + parts.join('/');
+  })();
+
   try {
-    const res  = await fetch('api/reservasi.php', {
+    const res  = await fetch(baseUrlRes + '/api/reservasi.php', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify(payload),
@@ -121,9 +156,9 @@ window.submitReservasi = async function (e) {
     showToast('Reservasi berhasil dikirim!');
 
   } catch (err) {
-    console.error(err);
-    showToast('Gagal mengirim pesanan. Pastikan semua data terisi dengan lengkap.');
- }
+    console.error('Reservasi error:', err);
+    showToast('Koneksi ke server gagal. Pastikan server PHP berjalan.');
+  }
 };
 
 /* ── Override kirimKomentar: kirim ke API komentar.php ── */
@@ -142,8 +177,15 @@ window.kirimKomentar = async function (e) {
     return;
   }
 
+  // Tentukan base URL
+  const baseUrlKom = (function() {
+    const parts = location.pathname.split('/');
+    parts.pop();
+    return location.origin + parts.join('/');
+  })();
+
   try {
-    const res  = await fetch('api/komentar.php', {
+    const res  = await fetch(baseUrlKom + '/api/komentar.php', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify(payload),
@@ -160,10 +202,10 @@ window.kirimKomentar = async function (e) {
     } else {
       showToast(data.message || 'Gagal mengirim komentar.');
     }
- } catch (err) {
-    console.error(err);
-    showToast('Gagal mengirim pesanan. Pastikan semua data terisi dengan lengkap.');
- }
+  } catch (err) {
+    console.error('Komentar error:', err);
+    showToast('Koneksi ke server gagal. Pastikan server PHP berjalan.');
+  }
 };
 
 /* ── Helper: format tanggal ── */

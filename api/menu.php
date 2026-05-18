@@ -1,4 +1,9 @@
 <?php
+// ============================================================
+//  API: Menu & Produk (GET)
+//  Endpoint: api/menu.php?kategori=kopi
+//            api/menu.php?type=produk
+// ============================================================
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 

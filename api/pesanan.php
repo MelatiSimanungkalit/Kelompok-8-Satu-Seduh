@@ -1,4 +1,9 @@
 <?php
+// ============================================================
+//  API: Pesanan (POST)
+//  Endpoint: api/pesanan.php
+//  Method: POST (JSON body)
+// ============================================================
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
@@ -10,6 +15,7 @@ require_once __DIR__ . '/../includes/config.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 
+// ── GET: Ambil daftar pesanan (untuk admin) ──────────────────
 if ($method === 'GET') {
     $db = getDB();
     $status = $_GET['status'] ?? '';
@@ -23,6 +29,7 @@ if ($method === 'GET') {
     echo json_encode(['success' => true, 'data' => $pesanan]);
     exit;
 }
+
 // ── POST: Buat pesanan baru ───────────────────────────────────
 if ($method === 'POST') {
     $body = json_decode(file_get_contents('php://input'), true);

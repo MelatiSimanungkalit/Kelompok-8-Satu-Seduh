@@ -1,3 +1,12 @@
+/* ════════════════════════════════════════════════
+   ORDER SYSTEM — Satu Seduh
+   1. Customize Modal (minuman kopi & non-kopi)
+   2. Simple Add (makanan)
+   3. Checkout Modal
+   4. Payment Modal (QRIS / Cash)
+   5. Reservasi Confirm Modal
+   ════════════════════════════════════════════════ */
+
 /* ─── STATE ─── */
 let orderCart = [];  // { name, price, basePrice, meta, img, type }
 let currentItem = null;
@@ -266,7 +275,7 @@ function openPaymentModal(method, total, orderNum, nama, meja) {
   openOverlay('paymentOverlay');
 }
 
-function startQrisTimer(seconds) {
+window.startQrisTimer = function startQrisTimer(seconds) {
   clearInterval(window._qrisTimer);
   const el = document.getElementById('qrisCountdown');
   const bar = document.querySelector('.pay-waiting-bar span');
