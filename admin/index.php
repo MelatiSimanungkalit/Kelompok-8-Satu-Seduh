@@ -202,93 +202,188 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
 
 /* ═══════════════════════════════════════════
-   LOGIN PAGE
+   LOGIN PAGE — Split Layout
    ═══════════════════════════════════════════ */
 .login-page {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   min-height: 100vh;
-  padding: 2rem;
-  position: relative;
   overflow: hidden;
 }
 
-.login-page::before {
+/* ── Left panel: coffee image ── */
+.login-left {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg1);
+}
+
+.login-left-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: brightness(0.6) saturate(0.85);
+}
+
+.login-left-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(135deg, rgba(8,5,2,0.55) 0%, rgba(8,5,2,0.2) 60%, rgba(8,5,2,0.7) 100%),
+    linear-gradient(to right, rgba(8,5,2,0.3) 0%, transparent 50%);
+}
+
+.login-left-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 52px 48px;
+}
+
+.login-left-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.8rem;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--cream);
+  letter-spacing: -1px;
+  line-height: 1;
+  margin-bottom: 16px;
+}
+.login-left-logo span { color: var(--gold); }
+
+.login-left-desc {
+  font-size: 0.82rem;
+  color: rgba(240,230,211,0.6);
+  line-height: 1.7;
+  max-width: 280px;
+  letter-spacing: 0.01em;
+}
+
+.login-left-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 28px;
+  background: rgba(212,165,90,0.12);
+  border: 1px solid rgba(212,165,90,0.25);
+  border-radius: 100px;
+  padding: 6px 14px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.login-left-badge::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  flex-shrink: 0;
+}
+
+/* ── Right panel: form ── */
+.login-right {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  padding: 60px 56px;
+  overflow: hidden;
+}
+
+.login-right::before {
   content: '';
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 60% at 30% 20%, rgba(212,165,90,0.06) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 80% at 80% 80%, rgba(212,165,90,0.04) 0%, transparent 60%);
+    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(212,165,90,0.05) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 40% at 100% 100%, rgba(212,165,90,0.03) 0%, transparent 60%);
+  pointer-events: none;
 }
 
-.login-grid-bg {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(212,165,90,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(212,165,90,0.04) 1px, transparent 1px);
-  background-size: 60px 60px;
-  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
-}
-
-.login-card {
+.login-right-inner {
   position: relative;
-  width: 420px;
-  max-width: 100%;
-  background: var(--card);
-  border: 1px solid var(--border2);
-  border-radius: var(--radius-lg);
-  padding: 48px 40px;
-  box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03) inset;
+  width: 100%;
+  max-width: 380px;
 }
 
-.login-brand {
-  text-align: center;
-  margin-bottom: 36px;
+.login-form-header {
+  margin-bottom: 40px;
 }
 
-.login-brand .wordmark {
+.login-form-welcome {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 2.2rem;
+  font-size: 2.4rem;
   font-weight: 700;
-  font-style: italic;
   color: var(--cream);
   letter-spacing: -0.5px;
+  line-height: 1.1;
+  margin-bottom: 10px;
 }
-.login-brand .wordmark span { color: var(--gold); }
 
-.login-brand .tagline {
-  display: block;
-  font-size: 0.72rem;
-  font-weight: 500;
+.login-form-welcome em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.login-form-subtitle {
+  font-size: 0.82rem;
   color: var(--muted);
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  margin-top: 4px;
+  line-height: 1.6;
 }
 
-.login-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--cream2);
-  text-align: center;
-  margin-bottom: 28px;
+/* ── Separator ── */
+.login-separator {
+  width: 36px;
+  height: 1px;
+  background: linear-gradient(to right, var(--gold), transparent);
+  margin: 20px 0;
 }
 
+/* ── Form fields ── */
 .form-field {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .form-field label {
   display: block;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 8px;
+  margin-bottom: 9px;
+}
+
+.form-field-wrap {
+  position: relative;
+}
+
+.form-field-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted2);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  transition: color 0.2s;
+}
+
+.form-field-wrap:focus-within .form-field-icon {
+  color: var(--gold);
 }
 
 .form-field input {
@@ -296,53 +391,136 @@ body {
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 12px 16px;
+  padding: 13px 16px 13px 42px;
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   color: var(--cream);
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
 .form-field input:focus {
   border-color: var(--border3);
-  box-shadow: 0 0 0 3px rgba(212,165,90,0.1);
+  background: var(--bg3);
+  box-shadow: 0 0 0 3px rgba(212,165,90,0.08);
 }
 .form-field input::placeholder { color: var(--muted2); }
 
+/* Password toggle */
+.pw-toggle {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--muted2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  transition: color 0.2s;
+}
+.pw-toggle:hover { color: var(--gold); }
+
+/* Remember & forgot row */
+.login-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 4px 0 24px;
+}
+
+.login-remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.login-remember input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--gold);
+  cursor: pointer;
+  margin: 0;
+}
+
+/* ── Login button ── */
 .btn-login {
   width: 100%;
-  padding: 13px;
-  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  padding: 14px;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
   border: none;
   border-radius: var(--radius-sm);
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 0.88rem;
+  font-weight: 700;
   color: #0a0600;
   cursor: pointer;
-  margin-top: 8px;
-  letter-spacing: 0.03em;
-  transition: opacity 0.2s, transform 0.1s;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.25s, transform 0.15s;
 }
-.btn-login:hover { opacity: 0.9; }
-.btn-login:active { transform: scale(0.99); }
 
+.btn-login::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.btn-login:hover {
+  box-shadow: 0 8px 28px rgba(212,165,90,0.35);
+  transform: translateY(-1px);
+}
+.btn-login:hover::after { opacity: 1; }
+.btn-login:active { transform: translateY(0) scale(0.99); box-shadow: none; }
+
+/* ── Error state ── */
 .login-error {
-  background: rgba(239,68,68,0.1);
-  border: 1px solid rgba(239,68,68,0.3);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.25);
   border-radius: var(--radius-sm);
-  padding: 10px 14px;
-  font-size: 0.82rem;
+  padding: 12px 16px;
+  font-size: 0.8rem;
   color: #fca5a5;
-  margin-top: 14px;
-  text-align: center;
+  margin-top: 16px;
 }
 
 .login-hint {
   text-align: center;
-  margin-top: 20px;
-  font-size: 0.72rem;
+  margin-top: 24px;
+  font-size: 0.7rem;
   color: var(--muted2);
+  letter-spacing: 0.03em;
+}
+
+.login-copyright {
+  position: absolute;
+  bottom: 28px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 0.68rem;
+  color: var(--muted2);
+  letter-spacing: 0.04em;
+}
+
+/* ── Responsive: stack on mobile ── */
+@media (max-width: 768px) {
+  .login-page { grid-template-columns: 1fr; }
+  .login-left { display: none; }
+  .login-right { padding: 48px 28px; }
 }
 
 /* ═══════════════════════════════════════════
@@ -1045,33 +1223,148 @@ table.data-table {
 
 <?php if (!$isLoggedIn): ?>
 <!-- ═══════════════════════════════════════════
-     LOGIN PAGE
+     LOGIN PAGE — Split Layout
      ═══════════════════════════════════════════ -->
 <div class="login-page">
-  <div class="login-grid-bg"></div>
-  <div class="login-card">
-    <div class="login-brand">
-      <span class="wordmark">satu<span>seduh</span>.</span>
-      <span class="tagline">Admin Panel</span>
+
+  <!-- LEFT: Coffee image panel -->
+  <div class="login-left">
+    <img
+      class="login-left-img"
+      src="../img/menu/coffee-beans.svg"
+      alt="Coffee Beans"
+      onerror="this.style.display='none'"
+    >
+    <!-- Fallback: dark gradient background -->
+    <div style="position:absolute;inset:0;background:linear-gradient(145deg,#1a0e04 0%,#0d0502 50%,#080300 100%);"></div>
+    <!-- Decorative coffee rings SVG -->
+    <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.07;" viewBox="0 0 600 700" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <circle cx="300" cy="350" r="220" fill="none" stroke="#d4a55a" stroke-width="1.5"/>
+      <circle cx="300" cy="350" r="160" fill="none" stroke="#d4a55a" stroke-width="1"/>
+      <circle cx="300" cy="350" r="100" fill="none" stroke="#d4a55a" stroke-width="0.8"/>
+      <circle cx="300" cy="350" r="50"  fill="none" stroke="#d4a55a" stroke-width="0.6"/>
+      <circle cx="80"  cy="120" r="80"  fill="none" stroke="#d4a55a" stroke-width="0.5"/>
+      <circle cx="520" cy="580" r="110" fill="none" stroke="#d4a55a" stroke-width="0.5"/>
+      <!-- coffee bean shapes -->
+      <ellipse cx="300" cy="350" rx="28" ry="44" fill="rgba(212,165,90,0.18)" transform="rotate(25 300 350)"/>
+      <line x1="300" y1="306" x2="300" y2="394" stroke="#d4a55a" stroke-width="0.8" transform="rotate(25 300 350)" opacity="0.3"/>
+      <ellipse cx="200" cy="200" rx="18" ry="28" fill="rgba(212,165,90,0.1)" transform="rotate(-15 200 200)"/>
+      <line x1="200" y1="172" x2="200" y2="228" stroke="#d4a55a" stroke-width="0.6" transform="rotate(-15 200 200)" opacity="0.2"/>
+      <ellipse cx="420" cy="480" rx="22" ry="34" fill="rgba(212,165,90,0.12)" transform="rotate(40 420 480)"/>
+      <line x1="420" y1="446" x2="420" y2="514" stroke="#d4a55a" stroke-width="0.6" transform="rotate(40 420 480)" opacity="0.25"/>
+      <ellipse cx="130" cy="500" rx="16" ry="26" fill="rgba(212,165,90,0.08)" transform="rotate(-30 130 500)"/>
+      <ellipse cx="480" cy="150" rx="20" ry="32" fill="rgba(212,165,90,0.1)" transform="rotate(60 480 150)"/>
+    </svg>
+    <div class="login-left-overlay"></div>
+    <div class="login-left-content">
+      <div class="login-left-logo">satu<span>seduh</span>.</div>
+      <p class="login-left-desc">Platform manajemen bisnis kopi Anda. Kelola pesanan, reservasi, dan menu dengan mudah.</p>
+      <span class="login-left-badge">Admin Dashboard</span>
     </div>
-    <p class="login-title">Masuk ke Dashboard</p>
-    <form method="POST" autocomplete="off">
-      <div class="form-field">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" required autocomplete="username" placeholder="Masukkan username">
+  </div>
+
+  <!-- RIGHT: Login form -->
+  <div class="login-right">
+    <div class="login-right-inner">
+      <div class="login-form-header">
+        <h1 class="login-form-welcome">Welcome<br><em>Back!</em></h1>
+        <p class="login-form-subtitle">Silakan login untuk melanjutkan ke dashboard.</p>
+        <div class="login-separator"></div>
       </div>
-      <div class="form-field">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••">
-      </div>
-      <button type="submit" name="login" class="btn-login">Masuk ke Dashboard</button>
-      <?php if (isset($loginError)): ?>
-        <div class="login-error"><?= htmlspecialchars($loginError) ?></div>
-      <?php endif; ?>
-    </form>
-    <p class="login-hint">Default: admin / password</p>
+
+      <form method="POST" autocomplete="off">
+        <!-- Username -->
+        <div class="form-field">
+          <label for="username">Username</label>
+          <div class="form-field-wrap">
+            <span class="form-field-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+            </span>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              required
+              autocomplete="username"
+              placeholder="Masukkan username"
+              value="<?= htmlspecialchars($_POST['username'] ?? '') ?>"
+            >
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-field">
+          <label for="password">Password</label>
+          <div class="form-field-wrap">
+            <span class="form-field-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </span>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              autocomplete="current-password"
+              placeholder="••••••••"
+            >
+            <button type="button" class="pw-toggle" id="pwToggle" aria-label="Toggle password visibility">
+              <svg id="eyeShow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+              <svg id="eyeHide" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Remember me -->
+        <div class="login-meta">
+          <label class="login-remember">
+            <input type="checkbox" name="remember" id="remember">
+            <span>Ingat saya</span>
+          </label>
+        </div>
+
+        <button type="submit" name="login" class="btn-login">Login</button>
+
+        <?php if (isset($loginError)): ?>
+          <div class="login-error">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <?= htmlspecialchars($loginError) ?>
+          </div>
+        <?php endif; ?>
+      </form>
+
+      <p class="login-hint">Default: admin / password</p>
+    </div>
+
+    <p class="login-copyright">© <?= date('Y') ?> Satu Seduh. All rights reserved.</p>
   </div>
 </div>
+
+<script>
+// Password toggle
+(function(){
+  const toggle = document.getElementById('pwToggle');
+  const input  = document.getElementById('password');
+  const show   = document.getElementById('eyeShow');
+  const hide   = document.getElementById('eyeHide');
+  if (!toggle || !input) return;
+  toggle.addEventListener('click', function() {
+    const isPass = input.type === 'password';
+    input.type = isPass ? 'text' : 'password';
+    show.style.display = isPass ? 'none' : '';
+    hide.style.display = isPass ? ''     : 'none';
+  });
+})();
+</script>
 
 <?php else: ?>
 <!-- ═══════════════════════════════════════════

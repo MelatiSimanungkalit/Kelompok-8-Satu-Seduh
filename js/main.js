@@ -12,14 +12,40 @@ if (isTouchDevice) {
   if(curR) curR.style.display = 'none';
   document.body.style.cursor = 'auto';
 } else {
+  let mx = -100, my = -100;
+  let rx = -100, ry = -100;
+  const ease = 0.12; // lower = smoother/slower ring, 0.12 is lightweight
+
+  // Move dot immediately via transform (no layout thrash)
   document.addEventListener('mousemove', e => {
-    if(cur){ cur.style.left = e.clientX+'px'; cur.style.top = e.clientY+'px'; }
-    setTimeout(() => {
-      if(curR){ curR.style.left = e.clientX+'px'; curR.style.top = e.clientY+'px'; }
-    }, 80);
+    mx = e.clientX;
+    my = e.clientY;
+    if(cur) {
+      cur.style.left = mx + 'px';
+      cur.style.top  = my + 'px';
+    }
   });
-  document.addEventListener('mouseleave', () => { if(cur) cur.style.opacity='0'; if(curR) curR.style.opacity='0'; });
-  document.addEventListener('mouseenter', () => { if(cur) cur.style.opacity='1'; if(curR) curR.style.opacity='1'; });
+
+  // Animate ring with eased RAF — much lighter than setTimeout
+  function animRing() {
+    rx += (mx - rx) * ease;
+    ry += (my - ry) * ease;
+    if(curR) {
+      curR.style.left = rx + 'px';
+      curR.style.top  = ry + 'px';
+    }
+    requestAnimationFrame(animRing);
+  }
+  requestAnimationFrame(animRing);
+
+  document.addEventListener('mouseleave', () => {
+    if(cur) cur.style.opacity='0';
+    if(curR) curR.style.opacity='0';
+  });
+  document.addEventListener('mouseenter', () => {
+    if(cur) cur.style.opacity='1';
+    if(curR) curR.style.opacity='1';
+  });
 }
 
 
