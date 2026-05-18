@@ -65,6 +65,35 @@ window.pickOpt = function(el, group, val) {
   document.querySelectorAll(`[data-group="${group}"]`).forEach(e => e.classList.remove('sel'));
   el.classList.add('sel');
   if (currentItem) currentItem[group] = val;
+
+  // Kalau pilih Hot -> disable semua opsi ice
+  if (group === 'temp') {
+    const iceButtons = document.querySelectorAll('[data-group="ice"]');
+    const iceLabel   = document.querySelector('.cust-ice-label');
+    if (val === 'Hot') {
+      iceButtons.forEach(btn => {
+        btn.classList.remove('sel');
+        btn.setAttribute('disabled', 'disabled');
+        btn.style.opacity = '0.3';
+        btn.style.pointerEvents = 'none';
+        btn.style.cursor = 'not-allowed';
+      });
+      if (iceLabel) iceLabel.style.opacity = '0.35';
+      if (currentItem) currentItem.ice = 'No Ice';
+    } else {
+      // Iced -> aktifkan kembali
+      iceButtons.forEach(btn => {
+        btn.removeAttribute('disabled');
+        btn.style.opacity = '';
+        btn.style.pointerEvents = '';
+        btn.style.cursor = '';
+      });
+      if (iceLabel) iceLabel.style.opacity = '';
+      selectOpt('ice', 'Normal Ice');
+      if (currentItem) currentItem.ice = 'Normal Ice';
+    }
+  }
+
   updateCustTotal();
 };
 
@@ -442,6 +471,11 @@ window.cetakBuktiReservasi = function() {
 /* ─── OVERLAY HELPERS ─── */
 function openOverlay(id) {
   document.getElementById(id).classList.add('open');
+  // Pastikan custom cursor tetap aktif di atas overlay
+  const cur  = document.getElementById('cur');
+  const curR = document.getElementById('curR');
+  if (cur)  cur.style.zIndex  = '2147483647';
+  if (curR) curR.style.zIndex = '2147483646';
 }
 function closeOverlay(id) {
   document.getElementById(id).classList.remove('open');

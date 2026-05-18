@@ -525,7 +525,7 @@ function hargaFmt(int $n): string {
         <button class="cust-opt" data-group="temp" data-val="Hot" onclick="pickOpt(this,'temp','Hot')">☕ Hot</button>
         <button class="cust-opt sel" data-group="temp" data-val="Iced" onclick="pickOpt(this,'temp','Iced')">🧊 Iced</button>
       </div></div>
-      <div class="cust-sec"><div class="cust-sec-label">🧊 Ice Level</div><div class="cust-opts">
+      <div class="cust-sec" id="iceSection"><div class="cust-sec-label cust-ice-label">🧊 Ice Level</div><div class="cust-opts">
         <button class="cust-opt sel" data-group="ice" data-val="Normal Ice" onclick="pickOpt(this,'ice','Normal Ice')">Normal</button>
         <button class="cust-opt" data-group="ice" data-val="Less Ice" onclick="pickOpt(this,'ice','Less Ice')">Less Ice</button>
         <button class="cust-opt" data-group="ice" data-val="No Ice" onclick="pickOpt(this,'ice','No Ice')">No Ice</button>

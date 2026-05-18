@@ -17,7 +17,7 @@
   transition: opacity 0.3s;
   backdrop-filter: blur(10px);
 }
-.ss-overlay.open { opacity: 1; pointer-events: all; }
+.ss-overlay.open { opacity: 1; pointer-events: all; cursor: auto; }
 
 .ss-modal {
   background: var(--dark1);
