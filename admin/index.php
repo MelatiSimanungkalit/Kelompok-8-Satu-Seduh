@@ -914,6 +914,8 @@ body {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 .card-title {
   font-size: 0.85rem;
@@ -936,10 +938,104 @@ body {
   border: 1px solid rgba(212,165,90,0.2);
 }
 
+/* ── Period selector (pojok kanan) ── */
+.chart-period-selector {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.chart-period-btn {
+  font-size: 0.68rem;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  background: transparent;
+  color: var(--muted);
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.chart-period-btn:hover {
+  color: var(--gold);
+  border-color: rgba(212,165,90,0.25);
+}
+.chart-period-btn.active {
+  background: var(--gold-dim);
+  color: var(--gold);
+  border-color: rgba(212,165,90,0.3);
+}
+
+/* Custom date range row */
+.chart-custom-range {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: -12px;
+  margin-bottom: 14px;
+}
+.chart-custom-range.open { display: flex; }
+.chart-date-input {
+  font-size: 0.68rem;
+  font-family: 'JetBrains Mono', monospace;
+  background: rgba(212,165,90,0.06);
+  color: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 10px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.18s;
+}
+.chart-date-input:focus { border-color: rgba(212,165,90,0.4); }
+.chart-date-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.6) sepia(0.5) saturate(2);
+  cursor: pointer;
+}
+.chart-apply-btn {
+  font-size: 0.68rem;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--gold-dim);
+  color: var(--gold);
+  border: 1px solid rgba(212,165,90,0.35);
+  border-radius: 20px;
+  padding: 5px 14px;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.chart-apply-btn:hover { background: rgba(212,165,90,0.2); }
+
+/* Chart wrap + loading */
 .chart-wrap {
   height: 200px;
   position: relative;
 }
+.chart-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card);
+  border-radius: 8px;
+  z-index: 10;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.chart-loading.show { opacity: 1; pointer-events: all; }
+.chart-spinner {
+  width: 20px; height: 20px;
+  border: 2px solid rgba(212,165,90,0.15);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── STATUS DIST CARD ── */
 .status-dist-card {
@@ -1589,12 +1685,29 @@ table.data-table {
         <div class="chart-card fade-up">
           <div class="card-header">
             <div>
-              <div class="card-title">Revenue 7 Hari Terakhir</div>
+              <div class="card-title" id="chartTitle">Revenue 7 Hari Terakhir</div>
               <div class="card-subtitle">Pendapatan dalam IDR</div>
             </div>
-            <span class="card-badge">7 Hari</span>
+            <div class="chart-period-selector">
+              <button class="chart-period-btn active" data-mode="7d">7 Hari</button>
+              <button class="chart-period-btn" data-mode="14d">14 Hari</button>
+              <button class="chart-period-btn" data-mode="30d">30 Hari</button>
+              <button class="chart-period-btn" data-mode="6m">6 Bulan</button>
+              <button class="chart-period-btn" data-mode="1y">1 Tahun</button>
+              <button class="chart-period-btn" data-mode="custom" id="btnCustomRange">&#128197;</button>
+            </div>
           </div>
+
+          <!-- Custom date range (muncul saat klik 📅) -->
+          <div class="chart-custom-range" id="customRangeRow">
+            <input type="date" class="chart-date-input" id="dateFrom" />
+            <span style="color:var(--muted);font-size:0.7rem">—</span>
+            <input type="date" class="chart-date-input" id="dateTo" />
+            <button class="chart-apply-btn" id="btnApplyRange">Terapkan</button>
+          </div>
+
           <div class="chart-wrap">
+            <div class="chart-loading" id="chartLoading"><div class="chart-spinner"></div></div>
             <canvas id="revenueChart"></canvas>
           </div>
         </div>
@@ -1906,26 +2019,40 @@ setInterval(updateClock, 1000);
 
 // ── REVENUE CHART ──
 <?php if ($activeTab === 'dashboard'): ?>
-const ctx = document.getElementById('revenueChart');
-if (ctx) {
-  const chartLabels = <?= json_encode(array_values($chartLabels)) ?>;
-  const chartData   = <?= json_encode(array_values($chartData)) ?>;
+(function() {
+  const ctx = document.getElementById('revenueChart');
+  if (!ctx) return;
 
-  new Chart(ctx, {
+  // ── Gradient helper ──
+  function makeGradient(chart) {
+    const g = chart.ctx.createLinearGradient(0, 0, 0, chart.height);
+    g.addColorStop(0,   'rgba(212,165,90,0.45)');
+    g.addColorStop(0.5, 'rgba(212,165,90,0.12)');
+    g.addColorStop(1,   'rgba(212,165,90,0.00)');
+    return g;
+  }
+
+  // ── Format IDR ──
+  const fmtIDR = v => 'IDR ' + v.toLocaleString('id-ID');
+  const fmtK   = v => v >= 1000000 ? (v/1000000).toFixed(1)+'jt' : v >= 1000 ? (v/1000).toFixed(0)+'K' : v;
+
+  // ── Init Chart ──
+  const revenueChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: chartLabels,
+      labels: [],
       datasets: [{
         label: 'Revenue (IDR)',
-        data: chartData,
+        data: [],
         borderColor: '#d4a55a',
-        backgroundColor: 'rgba(212,165,90,0.08)',
-        borderWidth: 2,
+        backgroundColor: function(ctx) { return makeGradient(ctx.chart); },
+        borderWidth: 2.5,
         pointBackgroundColor: '#d4a55a',
         pointBorderColor: '#120c06',
         pointBorderWidth: 2,
         pointRadius: 4,
-        pointHoverRadius: 6,
+        pointHoverRadius: 7,
+        pointHoverBackgroundColor: '#f0c97a',
         tension: 0.4,
         fill: true,
       }]
@@ -1933,38 +2060,126 @@ if (ctx) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      animation: { duration: 500, easing: 'easeInOutQuart' },
       interaction: { intersect: false, mode: 'index' },
       plugins: {
         legend: { display: false },
         tooltip: {
           backgroundColor: '#1c1409',
-          borderColor: 'rgba(212,165,90,0.25)',
+          borderColor: 'rgba(212,165,90,0.3)',
           borderWidth: 1,
           titleColor: '#d4a55a',
           bodyColor: '#c8b899',
           padding: 12,
           callbacks: {
-            label: ctx => 'IDR ' + ctx.parsed.y.toLocaleString('id-ID')
+            label: c => '  ' + fmtIDR(c.parsed.y)
           }
         }
       },
       scales: {
         x: {
           grid: { color: 'rgba(212,165,90,0.06)', drawBorder: false },
-          ticks: { color: '#7a6545', font: { size: 11, family: 'DM Sans' } }
+          ticks: { color: '#7a6545', font: { size: 10, family: 'DM Sans' }, maxRotation: 45 }
         },
         y: {
           grid: { color: 'rgba(212,165,90,0.06)', drawBorder: false },
           ticks: {
             color: '#7a6545',
-            font: { size: 11, family: 'JetBrains Mono' },
-            callback: v => v >= 1000 ? (v/1000).toFixed(0)+'K' : v
+            font: { size: 10, family: 'JetBrains Mono' },
+            callback: v => fmtK(v)
           }
         }
       }
     }
   });
-}
+
+  // ── Label map ──
+  const modeLabels = {
+    '7d':  'Revenue 7 Hari Terakhir',
+    '14d': 'Revenue 14 Hari Terakhir',
+    '30d': 'Revenue 30 Hari Terakhir',
+    '6m':  'Revenue 6 Bulan Terakhir',
+    '1y':  'Revenue 1 Tahun Terakhir',
+    'custom': 'Revenue — Rentang Kustom',
+  };
+
+  // ── Load data via AJAX ──
+  async function loadChart(mode, from, to) {
+    const loading = document.getElementById('chartLoading');
+    loading.classList.add('show');
+
+    let url = '../api/revenue_chart.php?mode=' + mode;
+    if (mode === 'custom' && from && to) url += '&from=' + from + '&to=' + to;
+
+    try {
+      const res  = await fetch(url);
+      const json = await res.json();
+
+      revenueChart.data.labels   = json.labels;
+      revenueChart.data.datasets[0].data = json.data;
+      revenueChart.update();
+
+      // Update title
+      let titleEl = document.getElementById('chartTitle');
+      if (titleEl) {
+        if (mode === 'custom' && from && to) {
+          const f = new Date(from).toLocaleDateString('id-ID', {day:'numeric',month:'short'});
+          const t = new Date(to).toLocaleDateString('id-ID', {day:'numeric',month:'short',year:'numeric'});
+          titleEl.textContent = 'Revenue ' + f + ' – ' + t;
+        } else {
+          titleEl.textContent = modeLabels[mode] || 'Revenue';
+        }
+      }
+
+    } catch(e) { console.error(e); }
+    finally { loading.classList.remove('show'); }
+  }
+
+  // ── Filter buttons ──
+  let currentMode = '7d';
+  document.querySelectorAll('.chart-period-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const mode = this.dataset.mode;
+
+      document.querySelectorAll('.chart-period-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+
+      const customRow = document.getElementById('customRangeRow');
+      if (mode === 'custom') {
+        // Init default dates
+        const today   = new Date();
+        const weekAgo = new Date(today - 7 * 86400000);
+        document.getElementById('dateFrom').value = weekAgo.toISOString().slice(0,10);
+        document.getElementById('dateTo').value   = today.toISOString().slice(0,10);
+        customRow.classList.add('open');
+        return;
+      } else {
+        customRow.classList.remove('open');
+      }
+
+      currentMode = mode;
+      loadChart(mode);
+    });
+  });
+
+  // ── Apply custom range ──
+  document.getElementById('btnApplyRange').addEventListener('click', function() {
+    const from = document.getElementById('dateFrom').value;
+    const to   = document.getElementById('dateTo').value;
+    if (!from || !to || from > to) {
+      alert('Pilih rentang tanggal yang valid.'); return;
+    }
+    currentMode = 'custom';
+    loadChart('custom', from, to);
+  });
+
+  // ── Load awal — pakai data PHP langsung ──
+  const initLabels = <?= json_encode(array_values($chartLabels)) ?>;
+  const initData   = <?= json_encode(array_values($chartData)) ?>;
+  revenueChart.data.labels = initLabels;
+  revenueChart.data.datasets[0].data = initData;
+  revenueChart.update('none');
+})();
 <?php endif; ?>
 
 // ── AUTO REFRESH PESANAN ──
