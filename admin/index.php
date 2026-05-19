@@ -5,6 +5,27 @@
 // ============================================================
 require_once __DIR__ . '/../includes/config.php';
 
+// ── AUTO-SEED ADMIN USERS ─────────────────────────────────────
+// Inserts default admin accounts if they don't exist yet.
+(function() {
+    $seeds = [
+        ['username' => 'admin',    'password' => 'password',  'nama' => 'Administrator'],
+        ['username' => 'isyadhan', 'password' => 'selamanya', 'nama' => 'Isyadhan'],
+    ];
+    try {
+        $db = getDB();
+        foreach ($seeds as $s) {
+            $exists = $db->prepare("SELECT id FROM admin_users WHERE username = ? LIMIT 1");
+            $exists->execute([$s['username']]);
+            if (!$exists->fetch()) {
+                $hash = password_hash($s['password'], PASSWORD_DEFAULT);
+                $db->prepare("INSERT INTO admin_users (username, password, nama) VALUES (?, ?, ?)")
+                   ->execute([$s['username'], $hash, $s['nama']]);
+            }
+        }
+    } catch (\Throwable $e) { /* silent — table may not exist yet */ }
+})();
+
 // ── LOGIN ────────────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
     $username = $_POST['username'] ?? '';
@@ -215,27 +236,59 @@ body {
 .login-left {
   position: relative;
   overflow: hidden;
-  background: var(--bg1);
+  background: #080401;
+  /* Stacking context bersih */
+  isolation: isolate;
 }
 
-.login-left-img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  filter: brightness(0.6) saturate(0.85);
-}
-
+/* ── Vignette bawah — paling bawah, cukup untuk readability teks ── */
 .login-left-overlay {
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(135deg, rgba(8,5,2,0.55) 0%, rgba(8,5,2,0.2) 60%, rgba(8,5,2,0.7) 100%),
-    linear-gradient(to right, rgba(8,5,2,0.3) 0%, transparent 50%);
+  background: linear-gradient(
+    to bottom,
+    rgba(8,4,1,0.25) 0%,
+    transparent       30%,
+    rgba(8,4,1,0.90) 100%
+  );
+  z-index: 1;
+  pointer-events: none;
 }
 
+/* ── Rings — hidden ── */
+.login-left-rings { display: none; }
+
+/* ── Coffee bean image — z-index 3, solid di ATAS rings ── */
+.login-left-bean {
+  position: absolute;
+  top: 44%;
+  left: 50%;
+  width: 62%;
+  max-width: 360px;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: beanSpin 120s linear infinite;
+}
+
+.login-left-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 0 40px rgba(180,100,30,0.6))
+          drop-shadow(0 0 80px rgba(140,70,10,0.3));
+}
+
+@keyframes beanSpin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ── Content teks — z-index 4, paling atas ── */
 .login-left-content {
   position: absolute;
   inset: 0;
@@ -243,6 +296,7 @@ body {
   flex-direction: column;
   justify-content: flex-end;
   padding: 52px 48px;
+  z-index: 4;
 }
 
 .login-left-logo {
@@ -1229,33 +1283,17 @@ table.data-table {
 
   <!-- LEFT: Coffee image panel -->
   <div class="login-left">
-    <img
-      class="login-left-img"
-      src="../img/menu/coffee-beans.svg"
-      alt="Coffee Beans"
-      onerror="this.style.display='none'"
-    >
-    <!-- Fallback: dark gradient background -->
-    <div style="position:absolute;inset:0;background:linear-gradient(145deg,#1a0e04 0%,#0d0502 50%,#080300 100%);"></div>
-    <!-- Decorative coffee rings SVG -->
-    <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.07;" viewBox="0 0 600 700" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-      <circle cx="300" cy="350" r="220" fill="none" stroke="#d4a55a" stroke-width="1.5"/>
-      <circle cx="300" cy="350" r="160" fill="none" stroke="#d4a55a" stroke-width="1"/>
-      <circle cx="300" cy="350" r="100" fill="none" stroke="#d4a55a" stroke-width="0.8"/>
-      <circle cx="300" cy="350" r="50"  fill="none" stroke="#d4a55a" stroke-width="0.6"/>
-      <circle cx="80"  cy="120" r="80"  fill="none" stroke="#d4a55a" stroke-width="0.5"/>
-      <circle cx="520" cy="580" r="110" fill="none" stroke="#d4a55a" stroke-width="0.5"/>
-      <!-- coffee bean shapes -->
-      <ellipse cx="300" cy="350" rx="28" ry="44" fill="rgba(212,165,90,0.18)" transform="rotate(25 300 350)"/>
-      <line x1="300" y1="306" x2="300" y2="394" stroke="#d4a55a" stroke-width="0.8" transform="rotate(25 300 350)" opacity="0.3"/>
-      <ellipse cx="200" cy="200" rx="18" ry="28" fill="rgba(212,165,90,0.1)" transform="rotate(-15 200 200)"/>
-      <line x1="200" y1="172" x2="200" y2="228" stroke="#d4a55a" stroke-width="0.6" transform="rotate(-15 200 200)" opacity="0.2"/>
-      <ellipse cx="420" cy="480" rx="22" ry="34" fill="rgba(212,165,90,0.12)" transform="rotate(40 420 480)"/>
-      <line x1="420" y1="446" x2="420" y2="514" stroke="#d4a55a" stroke-width="0.6" transform="rotate(40 420 480)" opacity="0.25"/>
-      <ellipse cx="130" cy="500" rx="16" ry="26" fill="rgba(212,165,90,0.08)" transform="rotate(-30 130 500)"/>
-      <ellipse cx="480" cy="150" rx="20" ry="32" fill="rgba(212,165,90,0.1)" transform="rotate(60 480 150)"/>
-    </svg>
+    <!-- z-index 1: vignette overlay (hanya untuk teks readability) -->
     <div class="login-left-overlay"></div>
+    <!-- z-index 2: decorative rings -->
+    <div class="login-left-rings">
+      <span></span><span></span><span></span><span></span>
+    </div>
+    <!-- z-index 3: rotating coffee bean — SOLID, di atas rings -->
+    <div class="login-left-bean">
+      <img class="login-left-img" src="../img/BiKop.png" alt="Coffee Bean">
+    </div>
+    <!-- z-index 4: text content -->
     <div class="login-left-content">
       <div class="login-left-logo">satu<span>seduh</span>.</div>
       <p class="login-left-desc">Platform manajemen bisnis kopi Anda. Kelola pesanan, reservasi, dan menu dengan mudah.</p>
