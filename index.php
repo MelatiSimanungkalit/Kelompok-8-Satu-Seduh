@@ -272,7 +272,7 @@ function hargaFmt(int $n): string {
          data-name="<?= $namaEsc ?>"
          data-price="<?= (int)$p['harga'] ?>"
          data-badge="<?= htmlspecialchars($p['badge'] ?? '') ?>"
-         data-stars="<?= htmlspecialchars($p['stars'] ?? '★★★★★') ?>"
+         data-stars="<?= htmlspecialchars($p['stars'] ?? '&#9733;&#9733;&#9733;&#9733;&#9733;') ?>"
          data-desc="<?= htmlspecialchars($p['deskripsi'] ?? '', ENT_QUOTES) ?>"
          data-chips="<?= htmlspecialchars($p['chips'] ?? '') ?>"
          data-old="<?= $hargaOld ?>">
@@ -286,7 +286,7 @@ function hargaFmt(int $n): string {
       </div>
       <div class="prod-body">
         <span class="prod-badge"><?= htmlspecialchars($p['badge'] ?? '') ?></span>
-        <div class="prod-stars"><?= htmlspecialchars($p['stars'] ?? '★★★★★') ?></div>
+        <div class="prod-stars"><?= !empty($p['stars']) ? htmlspecialchars($p['stars']) : '&#9733;&#9733;&#9733;&#9733;&#9733;' ?></div>
         <h3><?= htmlspecialchars($p['nama']) ?></h3>
         <p><?= htmlspecialchars($p['deskripsi'] ?? '') ?></p>
         <div class="prod-footer">
@@ -415,7 +415,7 @@ function hargaFmt(int $n): string {
       <p class="sec-sub">Ada pertanyaan atau ingin reservasi langsung? Kami siap membantu Anda setiap saat.</p>
       <div class="kontak-info">
         <div class="k-item"><div class="k-icon"><i data-feather="map-pin"></i></div><div class="k-text"><strong>Alamat</strong><span>Jl. Dr. Mansyur No.119, Padang Bulan, Medan Selayang, Kota Medan, Sumatera Utara 20143</span></div></div>
-        <div class="k-item"><div class="k-icon"><i data-feather="phone"></i></div><div class="k-text"><strong>WhatsApp</strong><span>+62 812 3456 7890</span></div></div>
+        <div class="k-item"><div class="k-icon"><i data-feather="phone"></i></div><div class="k-text"><strong>WhatsApp</strong><span>+628137113082</span></div></div>
         <div class="k-item"><div class="k-icon"><i data-feather="mail"></i></div><div class="k-text"><strong>Email</strong><span>hello@satuseduh.id</span></div></div>
         <div class="k-item"><div class="k-icon"><i data-feather="clock"></i></div><div class="k-text"><strong>Jam Operasional</strong><span>Senin – Minggu: 07.00 – 22.00 WIB</span></div></div>
       </div>
@@ -465,7 +465,7 @@ function hargaFmt(int $n): string {
       <a style="color:rgba(255,255,255,0.4);font-size:0.78rem;">07.00 – 22.00 WIB</a>
       <a>Sabtu – Minggu</a>
       <a style="color:rgba(255,255,255,0.4);font-size:0.78rem;">08.00 – 23.00 WIB</a>
-      <a href="tel:+6281234567890" style="margin-top:1rem;color:var(--gold);">+62 812 3456 7890</a>
+      <a href="tel:+628137113082" style="margin-top:1rem;color:var(--gold);">+628137113082</a>
     </div>
   </div>
   <div class="foot-bot">

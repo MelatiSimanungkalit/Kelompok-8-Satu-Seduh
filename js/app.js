@@ -149,7 +149,7 @@ window.submitReservasi = async function (e) {
       `Ruangan: ${d.ruangan}\nNama: ${d.nama}\nTanggal: ${formatTanggal(d.tanggal)}\nWaktu: ${d.waktu}\nDurasi: ${d.durasi}\nJumlah: ${d.jumlah_orang} orang\nCatatan: ${d.catatan || '-'}`
     );
     document.getElementById('rcWaBtn').onclick = () => {
-      window.open(`https://wa.me/6281234567890?text=${waMsg}`, '_blank');
+      window.open(`https://wa.me/628137113082?text=${waMsg}`, '_blank');
     };
 
     openOverlay('resConfirmOverlay');
