@@ -227,3 +227,232 @@ if (typeof showToast === 'undefined') {
     setTimeout(() => t.classList.remove('show'), 3000);
   };
 }
+
+/* ── Cetak / Simpan Bukti Reservasi ── */
+window.cetakBuktiReservasi = function () {
+  const ruangan  = document.getElementById('rcRuangan')?.textContent || '-';
+  const nama     = document.getElementById('rcNama')?.textContent    || '-';
+  const wa       = document.getElementById('rcWa')?.textContent      || '-';
+  const tanggal  = document.getElementById('rcTanggal')?.textContent || '-';
+  const waktu    = document.getElementById('rcWaktu')?.textContent   || '-';
+  const orang    = document.getElementById('rcOrang')?.textContent   || '-';
+  const catatan  = document.getElementById('rcCatatan')?.textContent || '-';
+
+  const noRef = 'SS-' + Date.now().toString(36).toUpperCase().slice(-6);
+  const cetakWaktu = new Date().toLocaleString('id-ID', {
+    day: '2-digit', month: 'long', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+
+  const html = `<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Bukti Reservasi - Satu Seduh</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f5f0e8;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 30px 16px;
+    }
+    .card {
+      background: #fff;
+      width: 100%;
+      max-width: 480px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+    }
+    .header {
+      background: #1a1209;
+      color: #c9a84c;
+      text-align: center;
+      padding: 28px 24px 22px;
+    }
+    .header .logo-text {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #c9a84c;
+      text-transform: uppercase;
+    }
+    .header .tagline {
+      font-size: 0.72rem;
+      color: #a0825a;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+    .status-bar {
+      background: #c9a84c;
+      color: #1a1209;
+      text-align: center;
+      padding: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    .body {
+      padding: 24px;
+    }
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 18px;
+      padding-bottom: 16px;
+      border-bottom: 1.5px dashed #e0d5c0;
+    }
+    .title-row h2 {
+      font-size: 1.15rem;
+      color: #1a1209;
+      font-weight: 700;
+    }
+    .title-row .no-ref {
+      font-size: 0.72rem;
+      color: #888;
+      text-align: right;
+    }
+    .title-row .no-ref strong {
+      display: block;
+      font-size: 0.82rem;
+      color: #c9a84c;
+      font-family: monospace;
+      letter-spacing: 1px;
+    }
+    table.detail {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    table.detail tr td {
+      padding: 9px 4px;
+      font-size: 0.875rem;
+      border-bottom: 1px solid #f0ebe0;
+      vertical-align: top;
+    }
+    table.detail tr:last-child td {
+      border-bottom: none;
+    }
+    table.detail td:first-child {
+      color: #8a7560;
+      width: 42%;
+      font-weight: 500;
+    }
+    table.detail td:last-child {
+      color: #1a1209;
+      font-weight: 600;
+      text-align: right;
+    }
+    .note-box {
+      background: #fffbf0;
+      border: 1px solid #e8d89a;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 20px;
+      font-size: 0.78rem;
+      color: #7a6430;
+      line-height: 1.5;
+    }
+    .note-box strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #b8862e;
+    }
+    .footer {
+      background: #1a1209;
+      color: #a0825a;
+      text-align: center;
+      padding: 14px 20px;
+      font-size: 0.7rem;
+      line-height: 1.7;
+    }
+    .footer strong {
+      color: #c9a84c;
+    }
+    .print-meta {
+      text-align: center;
+      font-size: 0.68rem;
+      color: #bbb;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px dashed #e0d5c0;
+    }
+    @media print {
+      body { background: white; padding: 0; }
+      .card { box-shadow: none; border-radius: 0; max-width: 100%; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <div class="logo-text">Satu Seduh</div>
+      <div class="tagline">Coffee &amp; Co-Working Space</div>
+    </div>
+    <div class="status-bar">⏳ Menunggu Konfirmasi</div>
+    <div class="body">
+      <div class="title-row">
+        <h2>Bukti Reservasi</h2>
+        <div class="no-ref">
+          No. Referensi<strong>${noRef}</strong>
+        </div>
+      </div>
+      <table class="detail">
+        <tr><td>Ruangan</td><td>${ruangan}</td></tr>
+        <tr><td>Nama</td><td>${nama}</td></tr>
+        <tr><td>WhatsApp</td><td>${wa}</td></tr>
+        <tr><td>Tanggal</td><td>${tanggal}</td></tr>
+        <tr><td>Waktu &amp; Durasi</td><td>${waktu}</td></tr>
+        <tr><td>Jumlah Tamu</td><td>${orang}</td></tr>
+        <tr><td>Catatan</td><td>${catatan}</td></tr>
+      </table>
+      <div class="note-box">
+        <strong>⚠️ Informasi Penting</strong>
+        Reservasi ini <em>belum terkonfirmasi</em>. Tim Satu Seduh akan menghubungi Anda melalui WhatsApp dalam <strong>30 menit</strong> untuk konfirmasi.
+      </div>
+      <div class="print-meta">
+        Dicetak: ${cetakWaktu}
+      </div>
+    </div>
+    <div class="footer">
+      <strong>Satu Seduh</strong><br>
+      Jl. Contoh No. 1, Medan · WA: 0813-7113-082<br>
+      Dokumen ini sebagai tanda terima permintaan reservasi.
+    </div>
+  </div>
+
+</body>
+</html>`;
+
+  // Gunakan Blob + iframe tersembunyi — tidak perlu popup, tidak diblokir browser
+  const blob = new Blob([html], { type: 'text/html' });
+  const url  = URL.createObjectURL(blob);
+
+  // Hapus iframe lama kalau ada
+  const old = document.getElementById('_buktiFrame');
+  if (old) old.remove();
+
+  const iframe = document.createElement('iframe');
+  iframe.id    = '_buktiFrame';
+  iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;';
+  iframe.src   = url;
+  document.body.appendChild(iframe);
+
+  iframe.onload = function () {
+    try {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    } catch (e) {
+      // Fallback: buka di tab baru jika iframe diblokir (misal file:// protocol)
+      window.open(url, '_blank');
+    }
+    setTimeout(() => { URL.revokeObjectURL(url); }, 60000);
+  };
+};
