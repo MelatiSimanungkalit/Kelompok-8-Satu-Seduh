@@ -292,6 +292,21 @@ function openPaymentModal(method, total, orderNum, nama, meja) {
     document.getElementById('qrisSection').style.display = 'block';
     document.getElementById('cashSection').style.display = 'none';
     document.getElementById('qrisAmount').textContent = rupiah(total);
+    
+    // Generate QR dinamis dengan QRious (lokal)
+    const qrText = "Satu Seduh Order: " + orderNum + " | Total: " + total;
+    const qr = new QRious({
+      element: document.getElementById('realQrisCanvas'),
+      value: qrText,
+      size: 300,
+      level: 'H'
+    });
+    
+    // Atur tombol download
+    const btnDownload = document.getElementById('btnDownloadQris');
+    btnDownload.href = qr.toDataURL('image/png');
+    btnDownload.download = "QRIS_" + orderNum + ".png";
+
     startQrisTimer(600);
   } else {
     document.getElementById('qrisSection').style.display = 'none';

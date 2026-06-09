@@ -15,6 +15,9 @@ foreach ($stmt->fetchAll() as $row) {
 // Ambil produk
 $produkData = $db->query("SELECT * FROM produk WHERE aktif = 1 ORDER BY id ASC")->fetchAll();
 
+// Ambil ruangan reservasi
+$ruanganData = $db->query("SELECT * FROM ruangan_reservasi WHERE aktif = 1 ORDER BY id ASC")->fetchAll();
+
 // Helper render badge
 function renderBadge(?string $badge): string {
     if (!$badge) return '';
@@ -171,15 +174,12 @@ function hargaFmt(int $n): string {
   </div>
   <div class="space-grid">
     <?php
-    $spaces = [
-      ['Indoor',      'Cozy Lounge',    'Suasana hangat dengan pencahayaan ambient. Cocok untuk nongkrong santai dan kerja.', '35 orang',       'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&q=80'],
-      ['Private Room','Meeting Room',   'Ruang meeting ber-AC dengan proyektor Full HD, whiteboard, dan koneksi internet cepat.', '4–20 orang', 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=600&q=80'],
-      ['Outdoor',     'Teras Hijau',    'Area outdoor dengan tanaman tropis, cocok untuk bersantai di pagi dan sore hari.', '30 orang',        'https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=600&q=80'],
-      ['Co-Working',  'Work Zone',      'Area kerja tenang dengan meja panjang, kursi ergonomis, dan akses listrik di setiap meja.', '25 orang', 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=80'],
-      ['Event',       'Venue Privat',   'Area luas untuk gathering, launching produk, seminar, atau ulang tahun spesial Anda.', '100 orang',  'https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?w=600&q=80'],
-      ['Bar Area',    'Coffee Bar',     'Duduk di depan barista dan saksikan seni meracik kopi terbaik secara langsung.', '10 orang',        'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&q=80'],
-    ];
-    foreach ($spaces as [$cap, $judul, $desc, $kapasitas, $img]):
+    foreach ($ruanganData as $r):
+      $cap = $r['kategori'];
+      $judul = $r['nama_ruangan'];
+      $desc = $r['deskripsi'];
+      $kapasitas = $r['kapasitas'];
+      $img = $r['gambar'] ? ((strpos($r['gambar'], 'http') === 0) ? $r['gambar'] : $r['gambar']) : 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&q=80';
     ?>
     <div class="space-card reveal">
       <img src="<?= $img ?>" alt="<?= $judul ?>">
@@ -320,12 +320,9 @@ function hargaFmt(int $n): string {
       <div class="form-group">
         <label>Pilih Ruangan</label>
         <div class="room-select">
-          <div class="room-opt sel" onclick="selRoom(this)"><strong>Meeting</strong>4–20 org</div>
-          <div class="room-opt" onclick="selRoom(this)"><strong>Co-Work</strong>1–25 org</div>
-          <div class="room-opt" onclick="selRoom(this)"><strong>Venue</strong>hingga 100</div>
-          <div class="room-opt" onclick="selRoom(this)"><strong>Outdoor</strong>1–30 org</div>
-          <div class="room-opt" onclick="selRoom(this)"><strong>Bar Area</strong>1–10 org</div>
-          <div class="room-opt" onclick="selRoom(this)"><strong>Lounge</strong>1–35 org</div>
+          <?php $i=0; foreach ($ruanganData as $r): ?>
+          <div class="room-opt <?= $i===0?'sel':'' ?>" onclick="selRoom(this)"><strong><?= htmlspecialchars($r['nama_ruangan']) ?></strong><?= htmlspecialchars($r['kapasitas']) ?></div>
+          <?php $i++; endforeach; ?>
         </div>
       </div>
       <div class="form-row">
@@ -575,8 +572,7 @@ function hargaFmt(int $n): string {
       <div class="co-field"><label>Catatan (Opsional)</label><textarea id="coCatatan" rows="2" placeholder="Misal: jangan terlalu manis, alergi kacang..."></textarea></div>
       <div class="co-sec-label">💳 Metode Pembayaran</div>
       <div class="pay-opts">
-        <div class="pay-opt sel" data-pay="qris" onclick="selectPayMethod(this,'qris')"><div class="pay-icon">📱</div><strong>QRIS</strong><span>GoPay, OVO, Dana, dll</span></div>
-        <div class="pay-opt" data-pay="cash" onclick="selectPayMethod(this,'cash')"><div class="pay-icon">💵</div><strong>Tunai (Cash)</strong><span>Bayar ke kasir</span></div>
+        <div class="pay-opt sel" data-pay="qris" onclick="selectPayMethod(this,'qris')"><div class="pay-icon">📱</div><strong>QRIS / Virtual Account</strong><span>GoPay, OVO, DANA, M-Banking</span></div>
       </div>
     </div>
     <div class="ss-footer"><button class="checkout-btn" onclick="submitCheckout()">Checkout Sekarang →</button></div>
@@ -596,17 +592,14 @@ function hargaFmt(int $n): string {
       <div class="qris-box">
         <div class="qris-logo"><span>QRIS <small>by</small></span><span style="color:#0070ba;font-weight:800;">GoPay</span></div>
         <div class="qris-amount" id="qrisAmount">IDR 0</div>
-        <div class="qris-img">
-          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-            <rect width="200" height="200" fill="white"/>
-            <rect x="10" y="10" width="60" height="60" rx="4" fill="#111"/><rect x="16" y="16" width="48" height="48" rx="2" fill="white"/><rect x="22" y="22" width="36" height="36" rx="1" fill="#111"/>
-            <rect x="130" y="10" width="60" height="60" rx="4" fill="#111"/><rect x="136" y="16" width="48" height="48" rx="2" fill="white"/><rect x="142" y="22" width="36" height="36" rx="1" fill="#111"/>
-            <rect x="10" y="130" width="60" height="60" rx="4" fill="#111"/><rect x="16" y="136" width="48" height="48" rx="2" fill="white"/><rect x="22" y="142" width="36" height="36" rx="1" fill="#111"/>
-            <rect x="80" y="10" width="8" height="8" fill="#111"/><rect x="90" y="10" width="8" height="8" fill="#111"/><rect x="110" y="10" width="8" height="8" fill="#111"/>
-            <rect x="80" y="80" width="8" height="8" fill="#111"/><rect x="100" y="80" width="8" height="8" fill="#111"/><rect x="120" y="80" width="8" height="8" fill="#111"/><rect x="140" y="80" width="8" height="8" fill="#111"/><rect x="160" y="80" width="8" height="8" fill="#111"/>
-            <rect x="80" y="130" width="8" height="8" fill="#111"/><rect x="100" y="130" width="8" height="8" fill="#111"/><rect x="120" y="130" width="8" height="8" fill="#111"/>
-            <rect x="80" y="150" width="8" height="8" fill="#111"/><rect x="110" y="150" width="8" height="8" fill="#111"/><rect x="80" y="170" width="8" height="8" fill="#111"/>
-          </svg>
+        <div class="qris-img" style="border:none; background:transparent; display:flex; flex-direction:column; align-items:center; height:auto; gap:10px;">
+          <div style="width:200px; height:200px; background:#fff; padding:10px; border-radius:8px; display:flex; justify-content:center; align-items:center;">
+            <canvas id="realQrisCanvas" width="200" height="200" style="max-width:100%; max-height:100%; object-fit:contain;"></canvas>
+          </div>
+          <a id="btnDownloadQris" href="#" download="QRIS_SatuSeduh.png" style="background:#0070ba; color:#fff; padding:8px 16px; border-radius:6px; text-decoration:none; font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:6px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Simpan QRIS
+          </a>
         </div>
         <p>Scan QR di atas menggunakan aplikasi dompet digital Anda</p>
         <p style="font-size:0.7rem;color:#999;margin-top:0.3rem;">GoPay · OVO · Dana · LinkAja · ShopeePay</p>
@@ -659,8 +652,9 @@ function hargaFmt(int $n): string {
   </div>
 </div>
 
-<script src="js/main.js"></script>
-<script src="js/order-system.js"></script>
-<script src="js/app.js"></script>
+<script src="js/qrious.min.js"></script>
+<script src="js/main.js?v=<?= time() ?>"></script>
+<script src="js/order-system.js?v=<?= time() ?>"></script>
+<script src="js/app.js?v=<?= time() ?>"></script>
 </body>
 </html>

@@ -1,4 +1,5 @@
 <?php
+ob_start();
 // ============================================================
 //  SATU SEDUH — Admin Dashboard (Redesigned)
 //  Akses: admin/index.php
@@ -90,7 +91,20 @@ if ($isLoggedIn) {
         $revenueChart[$row['tgl']] = (int)$row['total'];
     }
 
-    $pesananTerbaru = $db->query("SELECT * FROM pesanan ORDER BY created_at DESC LIMIT 15")->fetchAll();
+    $pesananTerbaru = $db->query("SELECT * FROM pesanan ORDER BY created_at DESC LIMIT 500")->fetchAll();
+    
+    // Fetch order details for pesananTerbaru
+    $orderDetails = [];
+    if (!empty($pesananTerbaru)) {
+        $orderIds = array_column($pesananTerbaru, 'id');
+        $inQuery = implode(',', array_fill(0, count($orderIds), '?'));
+        $stmtDet = $db->prepare("SELECT * FROM detail_pesanan WHERE pesanan_id IN ($inQuery)");
+        $stmtDet->execute($orderIds);
+        foreach ($stmtDet->fetchAll() as $det) {
+            $orderDetails[$det['pesanan_id']][] = $det;
+        }
+    }
+
     $reservasiList  = $db->query("SELECT * FROM reservasi ORDER BY tanggal DESC, waktu DESC LIMIT 15")->fetchAll();
     $komentarList   = $db->query("SELECT * FROM komentar ORDER BY created_at DESC LIMIT 15")->fetchAll();
 
@@ -102,7 +116,7 @@ if ($isLoggedIn) {
 if ($isLoggedIn && isset($_GET['update_pesanan'])) {
     $id     = (int)$_GET['update_pesanan'];
     $status = $_GET['status'] ?? '';
-    $valid  = ['pending','confirmed','preparing','ready','done','cancelled'];
+    $valid  = ['pending','lunas','confirmed','preparing','ready','done','cancelled'];
     if (in_array($status, $valid)) {
         $db->prepare("UPDATE pesanan SET status=? WHERE id=?")->execute([$status, $id]);
     }
@@ -1556,6 +1570,20 @@ table.data-table {
         <?php endif; ?>
       </a>
 
+      <a href="index.php?tab=kelola_menu" class="nav-item <?= $activeTab==='kelola_menu' ? 'active' : '' ?>">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M4 6h12M4 10h12M4 14h12"/>
+        </svg>
+        Kelola Menu
+      </a>
+
+      <a href="index.php?tab=kelola_ruangan" class="nav-item <?= $activeTab==='kelola_ruangan' ? 'active' : '' ?>">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6">
+          <rect x="3" y="4" width="14" height="13" rx="2"/><path d="M7 2v4M13 2v4M3 9h14"/>
+        </svg>
+        Kelola Ruangan
+      </a>
+
       <div class="nav-section-label">Lainnya</div>
 
       <a href="../index.php" target="_blank" class="nav-item">
@@ -1597,6 +1625,8 @@ table.data-table {
           'pesanan'   => ['Manajemen Pesanan', 'Kelola semua pesanan masuk'],
           'reservasi' => ['Manajemen Reservasi', 'Kelola booking meja & ruangan'],
           'komentar'  => ['Manajemen Komentar', 'Moderasi ulasan pelanggan'],
+          'kelola_menu' => ['Kelola Menu', 'Manajemen daftar menu F&B'],
+          'kelola_ruangan' => ['Kelola Ruangan', 'Manajemen space & ruangan reservasi'],
         ];
         $t = $titles[$activeTab] ?? $titles['dashboard'];
         ?>
@@ -1722,6 +1752,7 @@ table.data-table {
           <?php
           $statusColors = [
             'pending'   => '#fbbf24',
+            'lunas'     => '#f39c12',
             'confirmed' => '#34d399',
             'preparing' => '#60a5fa',
             'ready'     => '#a78bfa',
@@ -1730,6 +1761,7 @@ table.data-table {
           ];
           $statusLabels = [
             'pending'   => 'Pending',
+            'lunas'     => 'Menunggu ACC',
             'confirmed' => 'Confirmed',
             'preparing' => 'Preparing',
             'ready'     => 'Ready',
@@ -1844,7 +1876,7 @@ table.data-table {
                 <td>
                   <select class="status-select"
                     onchange="location='index.php?tab=pesanan&update_pesanan=<?= $p['id'] ?>&status='+this.value">
-                    <?php foreach (['pending','confirmed','preparing','ready','done','cancelled'] as $s): ?>
+                    <?php foreach (['pending','lunas','confirmed','preparing','ready','done','cancelled'] as $s): ?>
                     <option value="<?= $s ?>" <?= $p['status']===$s ? 'selected' : '' ?>><?= ucfirst($s) ?></option>
                     <?php endforeach; ?>
                   </select>
@@ -1854,6 +1886,31 @@ table.data-table {
                 </td>
                 <td style="font-size:0.75rem;color:var(--muted);white-space:nowrap;">
                   <?= date('d/m/Y H:i', strtotime($p['created_at'])) ?>
+                </td>
+              </tr>
+              <tr style="border-bottom: 1px solid rgba(212,165,90,0.06); background:transparent;">
+                <td colspan="10" style="padding: 0 16px 12px 16px;">
+                  <div style="background: rgba(0,0,0,0.15); padding: 10px 14px; border-radius: 6px; font-size: 0.75rem;">
+                    <div style="color:var(--gold); font-weight:600; margin-bottom:4px;">Detail Item:</div>
+                    <ul style="margin: 0 0 0 20px; padding:0; color:var(--muted);">
+                      <?php if (!empty($orderDetails[$p['id']])): ?>
+                        <?php foreach ($orderDetails[$p['id']] as $det): ?>
+                          <li><?= $det['qty'] ?>x <?= htmlspecialchars($det['nama_item']) ?> (Rp <?= number_format($det['harga'],0,',','.') ?>)
+                          <?php if ($det['keterangan']): ?> - <i style="color:#888;"><?= htmlspecialchars($det['keterangan']) ?></i><?php endif; ?>
+                          </li>
+                        <?php endforeach; ?>
+                      <?php else: ?>
+                        <li>Tidak ada detail</li>
+                      <?php endif; ?>
+                    </ul>
+                    <?php if ($p['status'] === 'lunas'): ?>
+                    <div style="margin-top: 10px;">
+                      <a href="index.php?tab=pesanan&update_pesanan=<?= $p['id'] ?>&status=confirmed" style="display:inline-block; background:#34d399; color:#000; padding:5px 12px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.7rem; box-shadow:0 2px 5px rgba(52,211,153,0.3);">
+                        ✓ ACC PEMBAYARAN (Jadikan Confirmed)
+                      </a>
+                    </div>
+                    <?php endif; ?>
+                  </div>
                 </td>
               </tr>
               <?php endforeach; ?>
@@ -1998,6 +2055,12 @@ table.data-table {
       </div>
       <?php endforeach; ?>
     </div>
+
+    <?php elseif ($activeTab === 'kelola_menu'): ?>
+      <?php include 'tab_kelola_menu.php'; ?>
+
+    <?php elseif ($activeTab === 'kelola_ruangan'): ?>
+      <?php include 'tab_kelola_ruangan.php'; ?>
 
     <?php endif; ?>
 

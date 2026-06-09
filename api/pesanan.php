@@ -38,7 +38,7 @@ if ($method === 'POST') {
     $telepon     = trim($body['telepon'] ?? '');
     $meja        = trim($body['meja'] ?? '');
     $catatan     = trim($body['catatan'] ?? '');
-    $bayar       = $body['metode_bayar'] ?? 'cash';
+    $bayar       = $body['metode_bayar'] ?? 'qris';
     $items       = $body['items'] ?? [];
 
     // Validasi
@@ -48,7 +48,7 @@ if ($method === 'POST') {
     if (empty($items)) {
         echo json_encode(['success' => false, 'message' => 'Keranjang kosong.']); exit;
     }
-    if (!in_array($bayar, ['qris','cash'])) {
+    if (!in_array($bayar, ['qris', 'transfer'])) {
         echo json_encode(['success' => false, 'message' => 'Metode bayar tidak valid.']); exit;
     }
 
@@ -65,12 +65,13 @@ if ($method === 'POST') {
         $db = getDB();
         $db->beginTransaction();
 
+        $expiredAt = date('Y-m-d H:i:s', strtotime('+15 minutes'));
         // Insert pesanan
         $stmt = $db->prepare("
-            INSERT INTO pesanan (nomor_pesanan, nama_pemesan, no_telepon, nomor_meja, catatan, metode_bayar, subtotal, total)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO pesanan (nomor_pesanan, nama_pemesan, no_telepon, nomor_meja, catatan, metode_bayar, subtotal, total, status, expired_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)
         ");
-        $stmt->execute([$nomorPesanan, $nama, $telepon, $meja, $catatan, $bayar, $subtotal, $total]);
+        $stmt->execute([$nomorPesanan, $nama, $telepon, $meja, $catatan, $bayar, $subtotal, $total, $expiredAt]);
         $pesananId = $db->lastInsertId();
 
         // Insert detail
@@ -97,6 +98,7 @@ if ($method === 'POST') {
             'total'         => $total,
             'total_fmt'     => rupiah($total),
             'message'       => 'Pesanan berhasil dibuat!',
+            'redirect_url'  => 'pay.php?order=' . $nomorPesanan // redirect to mock payment gateway
         ]);
 
     } catch (PDOException $e) {

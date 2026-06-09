@@ -62,25 +62,13 @@ window.submitCheckout = async function () {
 
     // ── Pesanan berhasil ──
     closeOverlay('checkoutOverlay');
-    document.getElementById('payOrderNum').textContent = data.nomor_pesanan;
-
-    if (bayar === 'qris') {
-      document.getElementById('qrisSection').style.display = '';
-      document.getElementById('cashSection').style.display = 'none';
-      document.getElementById('qrisAmount').textContent = data.total_fmt;
-      // startQrisTimer ada di order-system.js
-      if (typeof startQrisTimer === 'function') startQrisTimer(600);
-    } else {
-      document.getElementById('qrisSection').style.display = 'none';
-      document.getElementById('cashSection').style.display = '';
-      document.getElementById('cashAmount').textContent = data.total_fmt;
-      document.getElementById('cashMeja').textContent = meja ? 'Meja ' + meja : 'Kasir';
-    }
-    openOverlay('paymentOverlay');
-
-    // Kosongkan keranjang — renderOrderCart ada di order-system.js
     orderCart = [];
     if (typeof renderOrderCart === 'function') renderOrderCart();
+
+    if (data.redirect_url) {
+        window.location.href = data.redirect_url;
+        return;
+    }
     showToast('✓ Pesanan berhasil! No: ' + data.nomor_pesanan);
 
   } catch (err) {
