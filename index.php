@@ -41,8 +41,14 @@ function hargaFmt(int $n): string {
   <script src="https://unpkg.com/feather-icons"></script>
   <link rel="stylesheet" href="css/style.css"/>
   <link rel="stylesheet" href="css/order-system.css"/>
+  <?php if (file_exists(__DIR__ . '/css/ai_custom.css') && filesize(__DIR__ . '/css/ai_custom.css') > 30): ?>
+  <link rel="stylesheet" href="css/ai_custom.css?v=<?= filemtime(__DIR__ . '/css/ai_custom.css') ?>"/>
+  <?php endif; ?>
 </head>
 <body>
+<?php if (file_exists(__DIR__ . '/ai_inject.html') && filesize(__DIR__ . '/ai_inject.html') > 5): ?>
+<?php include __DIR__ . '/ai_inject.html'; ?>
+<?php endif; ?>
 
 <div class="cursor" id="cur"></div>
 <div class="cursor-ring" id="curR"></div>
@@ -563,6 +569,7 @@ function hargaFmt(int $n): string {
       <div class="co-items" id="coItemList"></div>
       <div class="co-subtotal"><span>Subtotal</span><span id="coSubtotal">IDR 0</span></div>
       <div class="co-total"><span>Total Pembayaran</span><span id="coTotal">IDR 0</span></div>
+
       <div class="co-sec-label">👤 Informasi Pemesan</div>
       <div class="co-field"><label>Nama Pemesan</label><input type="text" id="coNama" placeholder="Nama lengkap Anda"></div>
       <div class="co-row">
@@ -570,9 +577,27 @@ function hargaFmt(int $n): string {
         <div class="co-field"><label>Nomor Meja</label><input type="text" id="coMeja" placeholder="contoh: 7"></div>
       </div>
       <div class="co-field"><label>Catatan (Opsional)</label><textarea id="coCatatan" rows="2" placeholder="Misal: jangan terlalu manis, alergi kacang..."></textarea></div>
+
       <div class="co-sec-label">💳 Metode Pembayaran</div>
       <div class="pay-opts">
-        <div class="pay-opt sel" data-pay="qris" onclick="selectPayMethod(this,'qris')"><div class="pay-icon">📱</div><strong>QRIS / Virtual Account</strong><span>GoPay, OVO, DANA, M-Banking</span></div>
+        <div class="pay-opt sel" data-pay="qris" onclick="selectPayMethod(this,'qris')">
+          <div class="pay-icon">&#x25A2;</div><strong>QRIS</strong><span>Semua e-wallet</span>
+        </div>
+        <div class="pay-opt" data-pay="gopay" onclick="selectPayMethod(this,'gopay')">
+          <div class="pay-icon">🟢</div><strong>GoPay</strong><span>Gojek</span>
+        </div>
+        <div class="pay-opt" data-pay="dana" onclick="selectPayMethod(this,'dana')">
+          <div class="pay-icon">🔵</div><strong>DANA</strong><span>DANA</span>
+        </div>
+        <div class="pay-opt" data-pay="ovo" onclick="selectPayMethod(this,'ovo')">
+          <div class="pay-icon">🟣</div><strong>OVO</strong><span>OVO</span>
+        </div>
+        <div class="pay-opt" data-pay="shopeepay" onclick="selectPayMethod(this,'shopeepay')">
+          <div class="pay-icon">🧡</div><strong>ShopeePay</strong><span>Shopee</span>
+        </div>
+        <div class="pay-opt" data-pay="mbaking" onclick="selectPayMethod(this,'mbaking')">
+          <div class="pay-icon">🏦</div><strong>M-Banking</strong><span>BCA·Mandiri·BNI·BRI</span>
+        </div>
       </div>
     </div>
     <div class="ss-footer"><button class="checkout-btn" onclick="submitCheckout()">Checkout Sekarang →</button></div>

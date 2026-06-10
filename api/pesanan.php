@@ -48,8 +48,9 @@ if ($method === 'POST') {
     if (empty($items)) {
         echo json_encode(['success' => false, 'message' => 'Keranjang kosong.']); exit;
     }
-    if (!in_array($bayar, ['qris', 'transfer'])) {
-        echo json_encode(['success' => false, 'message' => 'Metode bayar tidak valid.']); exit;
+    $validMethods = ['qris', 'transfer', 'gopay', 'dana', 'ovo', 'shopeepay', 'mbaking', 'cash'];
+    if (!in_array($bayar, $validMethods)) {
+        $bayar = 'qris'; // fallback default
     }
 
     // Hitung total

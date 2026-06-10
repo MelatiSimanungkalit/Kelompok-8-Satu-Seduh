@@ -4,6 +4,12 @@
 //  Edit file ini sesuai dengan pengaturan MySQL Anda
 // ============================================================
 
+// ============================================================
+//  GEMINI API KEY — Isi dengan API key dari Google AI Studio
+//  https://aistudio.google.com/app/apikey
+// ============================================================
+define('GEMINI_API_KEY', '');  // ← Isi API key kamu di sini
+
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');        // Username MySQL Anda
 define('DB_PASS', '');            // Password MySQL Anda

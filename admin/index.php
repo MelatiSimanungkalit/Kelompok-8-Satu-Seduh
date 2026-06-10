@@ -1584,6 +1584,15 @@ table.data-table {
         Kelola Ruangan
       </a>
 
+      <div class="nav-section-label">AI & Tools</div>
+
+      <a href="index.php?tab=ai_assistant" class="nav-item <?= $activeTab==='ai_assistant' ? 'active' : '' ?>" style="<?= $activeTab==='ai_assistant' ? '' : '' ?>">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M10 2l1.8 5.5H17l-4.5 3.3 1.7 5.2L10 13l-4.2 3 1.7-5.2L3 7.5h5.2z"/>
+        </svg>
+        <span style="background:linear-gradient(135deg,#8B5CF6,#EC4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:600;">AI Assistant</span>
+      </a>
+
       <div class="nav-section-label">Lainnya</div>
 
       <a href="../index.php" target="_blank" class="nav-item">
@@ -1627,6 +1636,7 @@ table.data-table {
           'komentar'  => ['Manajemen Komentar', 'Moderasi ulasan pelanggan'],
           'kelola_menu' => ['Kelola Menu', 'Manajemen daftar menu F&B'],
           'kelola_ruangan' => ['Kelola Ruangan', 'Manajemen space & ruangan reservasi'],
+          'ai_assistant' => ['AI Assistant ✨', 'Modifikasi tampilan customer page dengan Gemini'],
         ];
         $t = $titles[$activeTab] ?? $titles['dashboard'];
         ?>
@@ -2061,6 +2071,9 @@ table.data-table {
 
     <?php elseif ($activeTab === 'kelola_ruangan'): ?>
       <?php include 'tab_kelola_ruangan.php'; ?>
+
+    <?php elseif ($activeTab === 'ai_assistant'): ?>
+      <?php include 'tab_ai_assistant.php'; ?>
 
     <?php endif; ?>
 

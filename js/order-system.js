@@ -8,103 +8,109 @@
    ════════════════════════════════════════════════ */
 
 /* ─── STATE ─── */
-let orderCart = [];  // { name, price, basePrice, meta, img, type }
+let orderCart = []; // { name, price, basePrice, meta, img, type }
 let currentItem = null;
 
 /* ─── HELPERS ─── */
 function rupiah(n) {
-  return 'IDR ' + parseInt(n).toLocaleString('id-ID');
+  return "IDR " + parseInt(n).toLocaleString("id-ID");
 }
 function genOrderNum() {
-  return 'SS-' + Date.now().toString().slice(-6);
+  return "SS-" + Date.now().toString().slice(-6);
 }
 
 /* ════════════════════════════════════════════════
    1. CUSTOMIZE MODAL (minuman)
    ════════════════════════════════════════════════ */
-window.openCustModal = function(data) {
+window.openCustModal = function (data) {
   currentItem = {
     name: data.name,
     basePrice: data.price,
     img: data.img,
-    type: 'minuman',
+    type: "minuman",
     // defaults
-    temp: 'Iced',
-    ice: 'Normal Ice',
-    sugar: 'Normal Sugar',
-    size: 'Regular',
+    temp: "Iced",
+    ice: "Normal Ice",
+    sugar: "Normal Sugar",
+    size: "Regular",
     addons: [],
     addonPrice: 0,
   };
 
-  document.getElementById('custHeroImg').src = data.img;
-  document.getElementById('custItemName').textContent = data.name;
-  document.getElementById('custBasePrice').textContent = rupiah(data.price);
+  document.getElementById("custHeroImg").src = data.img;
+  document.getElementById("custItemName").textContent = data.name;
+  document.getElementById("custBasePrice").textContent = rupiah(data.price);
   updateCustTotal();
 
   // reset selections
-  document.querySelectorAll('.cust-opt').forEach(el => el.classList.remove('sel'));
-  document.querySelectorAll('.addon-card').forEach(el => el.classList.remove('sel'));
+  document
+    .querySelectorAll(".cust-opt")
+    .forEach((el) => el.classList.remove("sel"));
+  document
+    .querySelectorAll(".addon-card")
+    .forEach((el) => el.classList.remove("sel"));
 
   // set defaults
-  selectOpt('temp', 'Iced');
-  selectOpt('ice', 'Normal Ice');
-  selectOpt('sugar', 'Normal Sugar');
-  selectOpt('size', 'Regular');
+  selectOpt("temp", "Iced");
+  selectOpt("ice", "Normal Ice");
+  selectOpt("sugar", "Normal Sugar");
+  selectOpt("size", "Regular");
 
-  openOverlay('custOverlay');
+  openOverlay("custOverlay");
 };
 
 function selectOpt(group, val) {
-  document.querySelectorAll(`[data-group="${group}"]`).forEach(el => {
-    el.classList.toggle('sel', el.dataset.val === val);
+  document.querySelectorAll(`[data-group="${group}"]`).forEach((el) => {
+    el.classList.toggle("sel", el.dataset.val === val);
   });
 }
 
-window.pickOpt = function(el, group, val) {
-  document.querySelectorAll(`[data-group="${group}"]`).forEach(e => e.classList.remove('sel'));
-  el.classList.add('sel');
+window.pickOpt = function (el, group, val) {
+  document
+    .querySelectorAll(`[data-group="${group}"]`)
+    .forEach((e) => e.classList.remove("sel"));
+  el.classList.add("sel");
   if (currentItem) currentItem[group] = val;
 
   // Kalau pilih Hot -> disable semua opsi ice
-  if (group === 'temp') {
+  if (group === "temp") {
     const iceButtons = document.querySelectorAll('[data-group="ice"]');
-    const iceLabel   = document.querySelector('.cust-ice-label');
-    if (val === 'Hot') {
-      iceButtons.forEach(btn => {
-        btn.classList.remove('sel');
-        btn.setAttribute('disabled', 'disabled');
-        btn.style.opacity = '0.3';
-        btn.style.pointerEvents = 'none';
-        btn.style.cursor = 'not-allowed';
+    const iceLabel = document.querySelector(".cust-ice-label");
+    if (val === "Hot") {
+      iceButtons.forEach((btn) => {
+        btn.classList.remove("sel");
+        btn.setAttribute("disabled", "disabled");
+        btn.style.opacity = "0.3";
+        btn.style.pointerEvents = "none";
+        btn.style.cursor = "not-allowed";
       });
-      if (iceLabel) iceLabel.style.opacity = '0.35';
-      if (currentItem) currentItem.ice = 'No Ice';
+      if (iceLabel) iceLabel.style.opacity = "0.35";
+      if (currentItem) currentItem.ice = "No Ice";
     } else {
       // Iced -> aktifkan kembali
-      iceButtons.forEach(btn => {
-        btn.removeAttribute('disabled');
-        btn.style.opacity = '';
-        btn.style.pointerEvents = '';
-        btn.style.cursor = '';
+      iceButtons.forEach((btn) => {
+        btn.removeAttribute("disabled");
+        btn.style.opacity = "";
+        btn.style.pointerEvents = "";
+        btn.style.cursor = "";
       });
-      if (iceLabel) iceLabel.style.opacity = '';
-      selectOpt('ice', 'Normal Ice');
-      if (currentItem) currentItem.ice = 'Normal Ice';
+      if (iceLabel) iceLabel.style.opacity = "";
+      selectOpt("ice", "Normal Ice");
+      if (currentItem) currentItem.ice = "Normal Ice";
     }
   }
 
   updateCustTotal();
 };
 
-window.toggleAddon = function(el, name, price) {
-  el.classList.toggle('sel');
+window.toggleAddon = function (el, name, price) {
+  el.classList.toggle("sel");
   if (!currentItem) return;
-  if (el.classList.contains('sel')) {
+  if (el.classList.contains("sel")) {
     currentItem.addons.push(name);
     currentItem.addonPrice += price;
   } else {
-    currentItem.addons = currentItem.addons.filter(a => a !== name);
+    currentItem.addons = currentItem.addons.filter((a) => a !== name);
     currentItem.addonPrice -= price;
   }
   updateCustTotal();
@@ -114,165 +120,196 @@ function updateCustTotal() {
   if (!currentItem) return;
   let total = currentItem.basePrice;
   // size surcharge
-  if (currentItem.size === 'Large') total += 5000;
+  if (currentItem.size === "Large") total += 5000;
   total += currentItem.addonPrice;
-  document.getElementById('custTotalPrice').textContent = rupiah(total);
+  document.getElementById("custTotalPrice").textContent = rupiah(total);
   currentItem.finalPrice = total;
 }
 
-window.addCustToCart = function() {
+window.addCustToCart = function () {
   if (!currentItem) return;
   const meta = [
     currentItem.temp,
     currentItem.ice,
     currentItem.sugar,
     currentItem.size,
-    ...currentItem.addons
-  ].join(' · ');
+    ...currentItem.addons,
+  ].join(" · ");
 
   orderCart.push({
     name: currentItem.name,
     price: currentItem.finalPrice,
     meta,
     img: currentItem.img,
-    type: 'minuman'
+    type: "minuman",
   });
 
-  closeOverlay('custOverlay');
+  closeOverlay("custOverlay");
   renderOrderCart();
-  showToast('✓ ' + currentItem.name + ' ditambahkan!');
+  showToast("✓ " + currentItem.name + " ditambahkan!");
   // Auto buka cart
   setTimeout(() => {
-    document.getElementById('cartSb').classList.add('open');
-    document.getElementById('backdrop').classList.add('on');
+    document.getElementById("cartSb").classList.add("open");
+    document.getElementById("backdrop").classList.add("on");
   }, 400);
 };
-
 
 /* ════════════════════════════════════════════════
    2. SIMPLE ADD (makanan ringan / berat)
    ════════════════════════════════════════════════ */
-window.addFoodToCart = function(name, price, img) {
-  orderCart.push({ name, price: parseInt(price), meta: '', img, type: 'makanan' });
+window.addFoodToCart = function (name, price, img) {
+  orderCart.push({
+    name,
+    price: parseInt(price),
+    meta: "",
+    img,
+    type: "makanan",
+  });
   renderOrderCart();
-  showToast('✓ ' + name + ' ditambahkan!');
+  showToast("✓ " + name + " ditambahkan!");
   setTimeout(() => {
-    document.getElementById('cartSb').classList.add('open');
-    document.getElementById('backdrop').classList.add('on');
+    document.getElementById("cartSb").classList.add("open");
+    document.getElementById("backdrop").classList.add("on");
   }, 400);
 };
-
 
 /* ════════════════════════════════════════════════
    CART RENDER
    ════════════════════════════════════════════════ */
 function renderOrderCart() {
-  const cartBody  = document.getElementById('cartBody');
-  const cartTotal = document.getElementById('cartTotal');
-  const cartCount = document.getElementById('cartCount');
+  const cartBody = document.getElementById("cartBody");
+  const cartTotal = document.getElementById("cartTotal");
+  const cartCount = document.getElementById("cartCount");
 
   cartCount.textContent = orderCart.length;
 
   if (orderCart.length === 0) {
-    cartBody.innerHTML = '<p class="cart-empty-msg">Keranjang masih kosong ☕</p>';
-    cartTotal.textContent = 'IDR 0';
+    cartBody.innerHTML =
+      '<p class="cart-empty-msg">Keranjang masih kosong ☕</p>';
+    cartTotal.textContent = "IDR 0";
     return;
   }
 
   let total = 0;
-  cartBody.innerHTML = orderCart.map((item, i) => {
-    total += item.price;
-    return `
+  cartBody.innerHTML = orderCart
+    .map((item, i) => {
+      total += item.price;
+      return `
       <div class="c-item">
         <img src="${item.img}" alt="${item.name}"
           onerror="this.src='https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=100&q=60'">
         <div class="c-item-info">
           <h4>${item.name}</h4>
-          ${item.meta ? `<div class="c-item-meta">${item.meta}</div>` : ''}
+          ${item.meta ? `<div class="c-item-meta">${item.meta}</div>` : ""}
           <span style="color:var(--gold);font-size:0.8rem;font-weight:600;">${rupiah(item.price)}</span>
         </div>
         <span class="c-remove" onclick="removeOrderItem(${i})"><i data-feather="x"></i></span>
       </div>`;
-  }).join('');
+    })
+    .join("");
 
   cartTotal.textContent = rupiah(total);
   feather.replace();
 }
 
-window.removeOrderItem = function(i) {
+window.removeOrderItem = function (i) {
   orderCart.splice(i, 1);
   renderOrderCart();
 };
 
-
 /* ════════════════════════════════════════════════
    3. CHECKOUT MODAL
    ════════════════════════════════════════════════ */
-window.openCheckout = function() {
+window.openCheckout = function () {
   if (orderCart.length === 0) {
-    showToast('Keranjang masih kosong!');
+    showToast("Keranjang masih kosong!");
     return;
   }
 
   // tutup cart sidebar
-  document.getElementById('cartSb').classList.remove('open');
-  document.getElementById('backdrop').classList.remove('on');
+  document.getElementById("cartSb").classList.remove("open");
+  document.getElementById("backdrop").classList.remove("on");
 
   // build order list
   let total = 0;
-  const itemsHTML = orderCart.map(item => {
-    total += item.price;
-    return `
+  const itemsHTML = orderCart
+    .map((item) => {
+      total += item.price;
+      return `
       <div class="co-item">
         <div class="co-item-name">
           ${item.name}
-          ${item.meta ? `<small>${item.meta}</small>` : ''}
+          ${item.meta ? `<small>${item.meta}</small>` : ""}
         </div>
         <div class="co-item-price">${rupiah(item.price)}</div>
       </div>`;
-  }).join('');
+    })
+    .join("");
 
-  document.getElementById('coItemList').innerHTML = itemsHTML;
-  document.getElementById('coSubtotal').textContent = rupiah(total);
-  document.getElementById('coTotal').textContent = rupiah(total);
+  document.getElementById("coItemList").innerHTML = itemsHTML;
+  document.getElementById("coSubtotal").textContent = rupiah(total);
+  document.getElementById("coTotal").textContent = rupiah(total);
 
   // reset form
-  document.getElementById('coNama').value = '';
-  document.getElementById('coTelp').value = '';
-  document.getElementById('coMeja').value = '';
-  document.getElementById('coCatatan').value = '';
-  document.querySelectorAll('.pay-opt').forEach(el => el.classList.remove('sel'));
-  document.querySelector('.pay-opt[data-pay="qris"]').classList.add('sel');
-
-  openOverlay('checkoutOverlay');
+  document.getElementById("coNama").value = "";
+  document.getElementById("coTelp").value = "";
+  document.getElementById("coMeja").value = "";
+  document.getElementById("coCatatan").value = "";
+  // Reset semua pay-opt, set QRIS as default
+  document
+    .querySelectorAll(".pay-opt")
+    .forEach((el) => el.classList.remove("sel"));
+  const defaultPay = document.querySelector('.pay-opt[data-pay="qris"]');
+  if (defaultPay) defaultPay.classList.add("sel");
+  openOverlay("checkoutOverlay");
 };
 
-window.selectPayMethod = function(el, method) {
-  document.querySelectorAll('.pay-opt').forEach(e => e.classList.remove('sel'));
-  el.classList.add('sel');
+window.selectPayMethod = function (el, method) {
+  document
+    .querySelectorAll(".pay-opt")
+    .forEach((e) => e.classList.remove("sel"));
+  el.classList.add("sel");
 };
 
-window.submitCheckout = function() {
-  const nama  = document.getElementById('coNama').value.trim();
-  const telp  = document.getElementById('coTelp').value.trim();
-  const meja  = document.getElementById('coMeja').value.trim();
-  const catatan = document.getElementById('coCatatan').value.trim();
-  const payEl = document.querySelector('.pay-opt.sel');
+window.submitCheckout = function () {
+  const nama = document.getElementById("coNama").value.trim();
+  const telp = document.getElementById("coTelp").value.trim();
+  const meja = document.getElementById("coMeja").value.trim();
+  const catatan = document.getElementById("coCatatan").value.trim();
+  const payEl = document.querySelector(".pay-opt.sel");
 
   if (!nama || !telp || !meja) {
-    showToast('Lengkapi nama, telepon & nomor meja dulu!');
+    showToast("Lengkapi nama, telepon & nomor meja dulu!");
     return;
   }
+  // Kalau tidak ada yang dipilih, default ke QRIS
   if (!payEl) {
-    showToast('Pilih metode pembayaran dulu!');
+    const defaultEl = document.querySelector('.pay-opt[data-pay="qris"]');
+    if (defaultEl) {
+      defaultEl.classList.add("sel");
+      // Lanjut eksekusi dengan QRIS
+    } else {
+      showToast("Pilih metode pembayaran dulu!");
+      return;
+    }
+  }
+  // Re-query setelah fallback
+  const finalPayEl =
+    document.querySelector(".pay-opt.sel") ||
+    document.querySelector('.pay-opt[data-pay="qris"]');
+  if (!finalPayEl) {
+    showToast("Pilih metode pembayaran dulu!");
     return;
   }
 
-  const payMethod = payEl.dataset.pay;
+  const payMethod = (
+    document.querySelector(".pay-opt.sel") ||
+    document.querySelector('.pay-opt[data-pay="qris"]')
+  ).dataset.pay;
   let total = orderCart.reduce((s, i) => s + i.price, 0);
   const orderNum = genOrderNum();
 
-  closeOverlay('checkoutOverlay');
+  closeOverlay("checkoutOverlay");
 
   // simpan info untuk payment modal
   window._lastOrder = { nama, telp, meja, catatan, payMethod, total, orderNum };
@@ -280,164 +317,238 @@ window.submitCheckout = function() {
   openPaymentModal(payMethod, total, orderNum, nama, meja);
 };
 
-
 /* ════════════════════════════════════════════════
    4. PAYMENT MODAL
    ════════════════════════════════════════════════ */
 function openPaymentModal(method, total, orderNum, nama, meja) {
-  // Tampilkan no pesanan (hanya sekali)
-  document.getElementById('payOrderNum').textContent = orderNum;
+  document.getElementById("payOrderNum").textContent = orderNum;
 
-  if (method === 'qris') {
-    document.getElementById('qrisSection').style.display = 'block';
-    document.getElementById('cashSection').style.display = 'none';
-    document.getElementById('qrisAmount').textContent = rupiah(total);
-    
-    // Generate QR dinamis dengan QRious (lokal)
-    const qrText = "Satu Seduh Order: " + orderNum + " | Total: " + total;
-    const qr = new QRious({
-      element: document.getElementById('realQrisCanvas'),
-      value: qrText,
-      size: 300,
-      level: 'H'
-    });
-    
-    // Atur tombol download
-    const btnDownload = document.getElementById('btnDownloadQris');
-    btnDownload.href = qr.toDataURL('image/png');
-    btnDownload.download = "QRIS_" + orderNum + ".png";
+  // Semua metode virtual — tampilkan QR section, sembunyikan cash
+  document.getElementById("qrisSection").style.display = "block";
+  document.getElementById("cashSection").style.display = "none";
+  document.getElementById("qrisAmount").textContent = rupiah(total);
 
-    startQrisTimer(600);
-  } else {
-    document.getElementById('qrisSection').style.display = 'none';
-    document.getElementById('cashSection').style.display = 'block';
-    document.getElementById('cashAmount').textContent = rupiah(total);
-    document.getElementById('cashMeja').textContent = 'Meja ' + meja;
-    clearInterval(window._qrisTimer);
-  }
+  // Label berdasarkan metode
+  const methodLabels = {
+    qris: {
+      name: "QRIS",
+      hint: "Scan QR menggunakan aplikasi e-wallet apapun",
+    },
+    gopay: { name: "GoPay", hint: "Buka GoPay → Scan QR di bawah ini" },
+    dana: { name: "DANA", hint: "Buka DANA → Scan QR di bawah ini" },
+    ovo: { name: "OVO", hint: "Buka OVO → Scan QR di bawah ini" },
+    shopeepay: {
+      name: "ShopeePay",
+      hint: "Buka ShopeePay → Scan QR di bawah ini",
+    },
+    mbaking: {
+      name: "M-Banking / Transfer",
+      hint: "Transfer ke rekening BCA: 1234567890 a/n Satu Seduh",
+    },
+  };
+  const ml = methodLabels[method] || methodLabels["qris"];
 
-  openOverlay('paymentOverlay');
+  // Update header QRIS box
+  const qrisLogoEl = document.querySelector(".qris-logo");
+  if (qrisLogoEl)
+    qrisLogoEl.innerHTML =
+      '<span style="font-weight:700;font-size:1rem;">' + ml.name + "</span>";
+
+  // Update hint text
+  const hintEls = document.querySelectorAll("#qrisSection p");
+  if (hintEls[0]) hintEls[0].textContent = ml.hint;
+  if (hintEls[1])
+    hintEls[1].style.display = method === "mbaking" ? "none" : "block";
+
+  // Buka modal dulu, baru generate QR dengan setTimeout agar canvas sudah ter-render
+  openOverlay("paymentOverlay");
+
+  setTimeout(function () {
+    try {
+      const qrText = "SatuSeduh|" + ml.name + "|" + orderNum + "|" + total;
+      const canvas = document.getElementById("realQrisCanvas");
+      if (canvas && typeof QRious !== "undefined") {
+        const qr = new QRious({
+          element: canvas,
+          value: qrText,
+          size: 300,
+          level: "H",
+        });
+        const btnDownload = document.getElementById("btnDownloadQris");
+        if (btnDownload) {
+          btnDownload.href = qr.toDataURL("image/png");
+          btnDownload.download =
+            ml.name.replace(/\s/g, "_") + "_" + orderNum + ".png";
+          btnDownload.style.background =
+            method === "gopay"
+              ? "#00aa13"
+              : method === "dana"
+                ? "#118EEA"
+                : method === "ovo"
+                  ? "#4c3494"
+                  : method === "shopeepay"
+                    ? "#EE4D2D"
+                    : "#0070ba";
+        }
+      }
+    } catch (e) {
+      console.warn("QR generation error:", e);
+    }
+  }, 80);
+
+  startQrisTimer(600);
 }
 
 window.startQrisTimer = function startQrisTimer(seconds) {
   clearInterval(window._qrisTimer);
-  const el = document.getElementById('qrisCountdown');
-  const bar = document.querySelector('.pay-waiting-bar span');
+  const el = document.getElementById("qrisCountdown");
+  const bar = document.querySelector(".pay-waiting-bar span");
 
   function tick() {
-    const m = String(Math.floor(seconds / 60)).padStart(2, '0');
-    const s = String(seconds % 60).padStart(2, '0');
-    if (el) el.textContent = m + ':' + s;
+    const m = String(Math.floor(seconds / 60)).padStart(2, "0");
+    const s = String(seconds % 60).padStart(2, "0");
+    if (el) el.textContent = m + ":" + s;
     if (seconds <= 0) {
       clearInterval(window._qrisTimer);
-      if (el) el.textContent = 'KADALUARSA';
-      if (el) el.style.color = '#e74c3c';
-      if (bar) bar.textContent = 'QR Code Kadaluarsa';
+      if (el) el.textContent = "KADALUARSA";
+      if (el) el.style.color = "#e74c3c";
+      if (bar) bar.textContent = "QR Code Kadaluarsa";
     }
     seconds--;
   }
   tick();
   window._qrisTimer = setInterval(tick, 1000);
-}
-
+};
 
 /* ════════════════════════════════════════════════
    5. RESERVASI CONFIRM MODAL
    ════════════════════════════════════════════════ */
-window.submitReservasi = function(e) {
+window.submitReservasi = function (e) {
   const btn = e.target;
 
   // Ambil nilai form
-  const ruangan = document.querySelector('.room-opt.sel strong')?.textContent || '-';
-  const nama    = document.getElementById('resNama')?.value.trim();
-  const wa      = document.getElementById('resWa')?.value.trim();
-  const tgl     = document.getElementById('resTgl')?.value;
+  const ruangan =
+    document.querySelector(".room-opt.sel strong")?.textContent || "-";
+  const nama = document.getElementById("resNama")?.value.trim();
+  const wa = document.getElementById("resWa")?.value.trim();
+  const tgl = document.getElementById("resTgl")?.value;
   // Gabungkan jam & menit dari select dropdown
-  const jam     = document.getElementById('resWaktuJam')?.value;
-  const menit   = document.getElementById('resWaktuMenit')?.value;
-  const waktuHidden = document.getElementById('resWaktu');
-  if (jam && menit && waktuHidden) waktuHidden.value = jam + ':' + menit;
-  const waktu   = waktuHidden?.value;
-  const durasi  = document.getElementById('resDurasi')?.value;
-  const orang   = document.getElementById('resOrang')?.value;
-  const catatan = document.getElementById('resCatatan')?.value.trim();
+  const jam = document.getElementById("resWaktuJam")?.value;
+  const menit = document.getElementById("resWaktuMenit")?.value;
+  const waktuHidden = document.getElementById("resWaktu");
+  if (jam && menit && waktuHidden) waktuHidden.value = jam + ":" + menit;
+  const waktu = waktuHidden?.value;
+  const durasi = document.getElementById("resDurasi")?.value;
+  const orang = document.getElementById("resOrang")?.value;
+  const catatan = document.getElementById("resCatatan")?.value.trim();
 
   // Validasi dengan highlight & scroll ke field kosong
   const fields = [
-    { val: nama,  id: 'resNama',  label: 'Nama Lengkap' },
-    { val: wa,    id: 'resWa',    label: 'No. WhatsApp' },
-    { val: tgl,   id: 'resTgl',   label: 'Tanggal' },
+    { val: nama, id: "resNama", label: "Nama Lengkap" },
+    { val: wa, id: "resWa", label: "No. WhatsApp" },
+    { val: tgl, id: "resTgl", label: "Tanggal" },
   ];
-  fields.forEach(f => { const el = document.getElementById(f.id); if (el) el.style.borderColor = ''; });
+  fields.forEach((f) => {
+    const el = document.getElementById(f.id);
+    if (el) el.style.borderColor = "";
+  });
   // Validasi khusus waktu (dari dua select)
-  const jamEl    = document.getElementById('resWaktuJam');
-  const menitEl  = document.getElementById('resWaktuMenit');
-  if (jamEl) jamEl.style.borderColor = '';
-  if (menitEl) menitEl.style.borderColor = '';
-  const emptyField = fields.find(f => !f.val);
+  const jamEl = document.getElementById("resWaktuJam");
+  const menitEl = document.getElementById("resWaktuMenit");
+  if (jamEl) jamEl.style.borderColor = "";
+  if (menitEl) menitEl.style.borderColor = "";
+  const emptyField = fields.find((f) => !f.val);
   if (emptyField) {
     const el = document.getElementById(emptyField.id);
     if (el) {
-      el.style.borderColor = '#e74c3c';
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.style.borderColor = "#e74c3c";
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
       el.focus();
-      el.addEventListener('input', () => { el.style.borderColor = ''; }, { once: true });
+      el.addEventListener(
+        "input",
+        () => {
+          el.style.borderColor = "";
+        },
+        { once: true },
+      );
     }
-    showToast('Lengkapi ' + emptyField.label + ' terlebih dahulu!');
+    showToast("Lengkapi " + emptyField.label + " terlebih dahulu!");
   } else if (!jam || !menit) {
-    if (jamEl) { jamEl.style.borderColor = '#e74c3c'; jamEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-    if (menitEl) menitEl.style.borderColor = '#e74c3c';
-    showToast('Lengkapi Waktu Mulai terlebih dahulu!');
+    if (jamEl) {
+      jamEl.style.borderColor = "#e74c3c";
+      jamEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    if (menitEl) menitEl.style.borderColor = "#e74c3c";
+    showToast("Lengkapi Waktu Mulai terlebih dahulu!");
     return;
   }
-  const tglFmt = new Date(tgl).toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  const tglFmt = new Date(tgl).toLocaleDateString("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
   // Isi detail modal konfirmasi
-  document.getElementById('rcRuangan').textContent = ruangan;
-  document.getElementById('rcNama').textContent    = nama;
-  document.getElementById('rcWa').textContent      = wa;
-  document.getElementById('rcTanggal').textContent = tglFmt;
-  document.getElementById('rcWaktu').textContent   = waktu + ' WIB · ' + (durasi || '1 Jam');
-  document.getElementById('rcOrang').textContent   = (orang || '-') + ' orang';
-  document.getElementById('rcCatatan').textContent = catatan || 'Tidak ada catatan';
+  document.getElementById("rcRuangan").textContent = ruangan;
+  document.getElementById("rcNama").textContent = nama;
+  document.getElementById("rcWa").textContent = wa;
+  document.getElementById("rcTanggal").textContent = tglFmt;
+  document.getElementById("rcWaktu").textContent =
+    waktu + " WIB · " + (durasi || "1 Jam");
+  document.getElementById("rcOrang").textContent = (orang || "-") + " orang";
+  document.getElementById("rcCatatan").textContent =
+    catatan || "Tidak ada catatan";
 
   // WA link
-  const nomorWA = '628137113082';
+  const nomorWA = "628137113082";
   const pesan =
     `Halo Satu Seduh! 👋\n\n` +
     `Saya ingin mengajukan *Reservasi*:\n\n` +
     `📍 Ruangan : ${ruangan}\n` +
     `👤 Nama    : ${nama}\n` +
     `📅 Tanggal : ${tglFmt}\n` +
-    `🕐 Waktu   : ${waktu} WIB · ${durasi || '1 Jam'}\n` +
-    `👥 Jumlah  : ${orang || '-'} orang\n` +
-    `📝 Catatan : ${catatan || '-'}\n\n` +
+    `🕐 Waktu   : ${waktu} WIB · ${durasi || "1 Jam"}\n` +
+    `👥 Jumlah  : ${orang || "-"} orang\n` +
+    `📝 Catatan : ${catatan || "-"}\n\n` +
     `Mohon konfirmasinya. Terima kasih!`;
 
   const waUrl = `https://wa.me/${nomorWA}?text=${encodeURIComponent(pesan)}`;
 
-  document.getElementById('rcWaBtn').onclick = () => {
-    window.open(waUrl, '_blank');
+  document.getElementById("rcWaBtn").onclick = () => {
+    window.open(waUrl, "_blank");
   };
 
   // Simpan data untuk cetak bukti
-  window._lastReservasi = { ruangan, nama, wa, tglFmt, waktu, durasi, orang, catatan };
+  window._lastReservasi = {
+    ruangan,
+    nama,
+    wa,
+    tglFmt,
+    waktu,
+    durasi,
+    orang,
+    catatan,
+  };
 
-  openOverlay('resConfirmOverlay');
+  openOverlay("resConfirmOverlay");
 };
 
 /* ── Cetak / Simpan Bukti Reservasi ── */
-window.cetakBuktiReservasi = function() {
+window.cetakBuktiReservasi = function () {
   const d = window._lastReservasi;
   if (!d) return;
 
-  const noRef = 'SS-RES-' + Date.now().toString().slice(-6);
-  const tsCetak = new Date().toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
+  const noRef = "SS-RES-" + Date.now().toString().slice(-6);
+  const tsCetak = new Date().toLocaleString("id-ID", {
+    dateStyle: "long",
+    timeStyle: "short",
+  });
 
-  let area = document.getElementById('buktiPrintArea');
+  let area = document.getElementById("buktiPrintArea");
   if (!area) {
-    area = document.createElement('div');
-    area.id = 'buktiPrintArea';
+    area = document.createElement("div");
+    area.id = "buktiPrintArea";
     document.body.appendChild(area);
   }
 
@@ -454,18 +565,22 @@ window.cetakBuktiReservasi = function() {
         </div>
         <hr style="border:none;border-top:1px dashed #ddd;margin:1rem 0;">
         ${[
-          ['Ruangan', d.ruangan],
-          ['Nama Pemesan', d.nama],
-          ['WhatsApp', d.wa],
-          ['Tanggal', d.tglFmt],
-          ['Waktu & Durasi', d.waktu + ' WIB · ' + (d.durasi || '1 Jam')],
-          ['Jumlah Tamu', (d.orang || '-') + ' orang'],
-          ['Catatan', d.catatan || 'Tidak ada catatan'],
-        ].map(([label, val]) => `
+          ["Ruangan", d.ruangan],
+          ["Nama Pemesan", d.nama],
+          ["WhatsApp", d.wa],
+          ["Tanggal", d.tglFmt],
+          ["Waktu & Durasi", d.waktu + " WIB · " + (d.durasi || "1 Jam")],
+          ["Jumlah Tamu", (d.orang || "-") + " orang"],
+          ["Catatan", d.catatan || "Tidak ada catatan"],
+        ]
+          .map(
+            ([label, val]) => `
           <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:0.5rem 0;border-bottom:1px solid #f0ece0;gap:1rem;">
             <span style="color:#888;font-size:0.82rem;min-width:120px;">${label}</span>
             <span style="font-weight:600;font-size:0.88rem;text-align:right;">${val}</span>
-          </div>`).join('')}
+          </div>`,
+          )
+          .join("")}
         <hr style="border:none;border-top:1px dashed #ddd;margin:1rem 0;">
         <div style="background:#fffbf0;border:1px solid #e8d99a;border-radius:8px;padding:0.8rem 1rem;font-size:0.78rem;color:#7a6430;line-height:1.6;">
           ⚠️ <strong>Status: Menunggu Konfirmasi.</strong> Reservasi belum sah sampai mendapat balasan dari tim Satu Seduh via WhatsApp.
@@ -477,50 +592,61 @@ window.cetakBuktiReservasi = function() {
       </div>
     </div>`;
 
-  area.style.display = 'block';
+  area.style.display = "block";
   window.print();
-  setTimeout(() => { area.style.display = 'none'; }, 1000);
+  setTimeout(() => {
+    area.style.display = "none";
+  }, 1000);
 };
-
 
 /* ─── OVERLAY HELPERS ─── */
 function openOverlay(id) {
-  document.getElementById(id).classList.add('open');
+  document.getElementById(id).classList.add("open");
   // Pastikan custom cursor tetap aktif di atas overlay
-  const cur  = document.getElementById('cur');
-  const curR = document.getElementById('curR');
-  if (cur)  cur.style.zIndex  = '2147483647';
-  if (curR) curR.style.zIndex = '2147483646';
+  const cur = document.getElementById("cur");
+  const curR = document.getElementById("curR");
+  if (cur) cur.style.zIndex = "2147483647";
+  if (curR) curR.style.zIndex = "2147483646";
 }
 function closeOverlay(id) {
-  document.getElementById(id).classList.remove('open');
+  document.getElementById(id).classList.remove("open");
 }
 window.closeOverlay = closeOverlay;
 
 // Klik luar modal = tutup
-['custOverlay','checkoutOverlay','paymentOverlay','resConfirmOverlay'].forEach(id => {
+[
+  "custOverlay",
+  "checkoutOverlay",
+  "paymentOverlay",
+  "resConfirmOverlay",
+].forEach((id) => {
   const el = document.getElementById(id);
-  if (el) el.addEventListener('click', e => { if (e.target === el) closeOverlay(id); });
+  if (el)
+    el.addEventListener("click", (e) => {
+      if (e.target === el) closeOverlay(id);
+    });
 });
 
 /* ── CART BUTTON INIT ── */
-document.addEventListener('DOMContentLoaded', function(){
-  const cartBtn   = document.getElementById('cartBtn');
-  const cartClose = document.getElementById('cartClose');
-  const cartSb    = document.getElementById('cartSb');
-  const backdrop  = document.getElementById('backdrop');
+document.addEventListener("DOMContentLoaded", function () {
+  const cartBtn = document.getElementById("cartBtn");
+  const cartClose = document.getElementById("cartClose");
+  const cartSb = document.getElementById("cartSb");
+  const backdrop = document.getElementById("backdrop");
 
-  if(cartBtn) cartBtn.addEventListener('click', ()=>{
-    cartSb.classList.add('open');
-    backdrop.classList.add('on');
-  });
-  if(cartClose) cartClose.addEventListener('click', ()=>{
-    cartSb.classList.remove('open');
-    backdrop.classList.remove('on');
-  });
+  if (cartBtn)
+    cartBtn.addEventListener("click", () => {
+      cartSb.classList.add("open");
+      backdrop.classList.add("on");
+    });
+  if (cartClose)
+    cartClose.addEventListener("click", () => {
+      cartSb.classList.remove("open");
+      backdrop.classList.remove("on");
+    });
 
   // blok context menu di cart
-  if(cartSb) cartSb.addEventListener('contextmenu', e=>e.preventDefault());
+  if (cartSb) cartSb.addEventListener("contextmenu", (e) => e.preventDefault());
 
   // render kosong awal
   renderOrderCart();
