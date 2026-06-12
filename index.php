@@ -28,6 +28,20 @@ function renderBadge(?string $badge): string {
 function hargaFmt(int $n): string {
     return 'IDR ' . number_format($n / 1000, 0) . 'K';
 }
+
+$tentangDataFile = __DIR__ . '/data/tentang.json';
+if (file_exists($tentangDataFile)) {
+    $tentangData = json_decode(file_get_contents($tentangDataFile), true);
+}
+if (empty($tentangData)) {
+    $tentangData = [
+        'kisah_kami' => 'Kisah Kami',
+        'judul' => 'Lebih dari Sekadar <em>Secangkir Kopi</em>',
+        'paragraf1' => 'Di Satu Seduh, setiap cangkir kopi menyimpan kisah dan kehangatan. Lahir dari semangat menghadirkan pengalaman ngopi otentik dengan biji kopi terbaik Nusantara — dari Aceh, Toraja, hingga Flores.',
+        'paragraf2' => 'Kami tidak hanya menyajikan kopi, tapi juga ruang untuk bercerita, berkreasi, dan berkolaborasi. Dengan fasilitas meeting, co-working, dan acara privat — Satu Seduh adalah rumah kedua Anda.',
+        'foto' => 'tentang-kami.jpg'
+    ];
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -116,16 +130,16 @@ function hargaFmt(int $n): string {
 <section id="about" class="section">
   <div class="about-img reveal-left">
     <div class="about-frame"></div>
-    <img class="about-img-main" src="tentang-kami.jpg" alt="Tentang Satu Seduh"
+    <img class="about-img-main" src="<?= htmlspecialchars($tentangData['foto']) ?>" alt="Tentang Satu Seduh"
       onerror="this.src='https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80'">
     <div class="about-badge"><strong>2018</strong><span>Berdiri Sejak</span></div>
   </div>
   <div class="about-text reveal-right">
-    <span class="sec-label">Kisah Kami</span>
-    <h2 class="sec-title">Lebih dari Sekadar <em>Secangkir Kopi</em></h2>
+    <span class="sec-label"><?= htmlspecialchars($tentangData['kisah_kami']) ?></span>
+    <h2 class="sec-title"><?= $tentangData['judul'] ?></h2>
     <div class="gold-line"></div>
-    <p class="sec-sub">Di Satu Seduh, setiap cangkir kopi menyimpan kisah dan kehangatan. Lahir dari semangat menghadirkan pengalaman ngopi otentik dengan biji kopi terbaik Nusantara — dari Aceh, Toraja, hingga Flores.</p>
-    <p class="sec-sub" style="margin-top:1rem;">Kami tidak hanya menyajikan kopi, tapi juga ruang untuk bercerita, berkreasi, dan berkolaborasi. Dengan fasilitas meeting, co-working, dan acara privat — Satu Seduh adalah rumah kedua Anda.</p>
+    <p class="sec-sub"><?= nl2br(htmlspecialchars($tentangData['paragraf1'])) ?></p>
+    <p class="sec-sub" style="margin-top:1rem;"><?= nl2br(htmlspecialchars($tentangData['paragraf2'])) ?></p>
     <div class="about-chips">
       <span class="chip">Arabica Specialty</span><span class="chip">Single Origin</span>
       <span class="chip">Petani Lokal</span><span class="chip">Halal Certified</span>

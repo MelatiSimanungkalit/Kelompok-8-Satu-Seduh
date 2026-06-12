@@ -1584,13 +1584,11 @@ table.data-table {
         Kelola Ruangan
       </a>
 
-      <div class="nav-section-label">AI & Tools</div>
-
-      <a href="index.php?tab=ai_assistant" class="nav-item <?= $activeTab==='ai_assistant' ? 'active' : '' ?>" style="<?= $activeTab==='ai_assistant' ? '' : '' ?>">
+      <a href="index.php?tab=kelola_tentang" class="nav-item <?= $activeTab==='kelola_tentang' ? 'active' : '' ?>">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6">
-          <path d="M10 2l1.8 5.5H17l-4.5 3.3 1.7 5.2L10 13l-4.2 3 1.7-5.2L3 7.5h5.2z"/>
+          <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span style="background:linear-gradient(135deg,#8B5CF6,#EC4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:600;">AI Assistant</span>
+        Kelola Tentang
       </a>
 
       <div class="nav-section-label">Lainnya</div>
@@ -1636,7 +1634,7 @@ table.data-table {
           'komentar'  => ['Manajemen Komentar', 'Moderasi ulasan pelanggan'],
           'kelola_menu' => ['Kelola Menu', 'Manajemen daftar menu F&B'],
           'kelola_ruangan' => ['Kelola Ruangan', 'Manajemen space & ruangan reservasi'],
-          'ai_assistant' => ['AI Assistant ✨', 'Modifikasi tampilan customer page dengan Gemini'],
+          'kelola_tentang' => ['Kelola Tentang', 'Edit halaman Tentang Kami'],
         ];
         $t = $titles[$activeTab] ?? $titles['dashboard'];
         ?>
@@ -2072,8 +2070,8 @@ table.data-table {
     <?php elseif ($activeTab === 'kelola_ruangan'): ?>
       <?php include 'tab_kelola_ruangan.php'; ?>
 
-    <?php elseif ($activeTab === 'ai_assistant'): ?>
-      <?php include 'tab_ai_assistant.php'; ?>
+    <?php elseif ($activeTab === 'kelola_tentang'): ?>
+      <?php include 'tab_kelola_tentang.php'; ?>
 
     <?php endif; ?>
 
